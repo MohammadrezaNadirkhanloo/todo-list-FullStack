@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Calendar, Clock, Edit, MoreHorizontal, Trash2, CheckCircle, Circle, GripVertical, Search, Filter, Tag, Plus } from 'lucide-react';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
+    closestCenter,
+    DndContext,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
 } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { format } from 'date-fns';
+import { Calendar, CheckCircle, Circle, Edit, GripVertical, MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-import { Input } from './components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 
 interface Task {
   id: number;
@@ -37,6 +35,12 @@ interface Task {
   category?: string;
   priority: 'low' | 'medium' | 'high';
   tags: string[];
+}
+
+// Shape of a task as it's stored in localStorage (dates are strings, not Date objects)
+interface StoredTask extends Omit<Task, 'dueDate' | 'createdAt'> {
+  dueDate?: string;
+  createdAt: string;
 }
 
 const PRIORITY_COLORS = {
@@ -79,7 +83,7 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
   };
 
   return (
-    <Card 
+    <Card
       ref={setNodeRef}
       style={style}
       className={`transition-all duration-200 hover:shadow-md ${
@@ -90,6 +94,8 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1">
             <Button
+              variant="ghost"
+              size="icon"
               onClick={() => onToggle(task.id)}
               className="flex-shrink-0"
             >
@@ -99,7 +105,7 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
                 <Circle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
               )}
             </Button>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
@@ -114,18 +120,18 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
                   </span>
                 )}
               </div>
-              
+
               {task.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-1">
                   {task.tags.map((tag, index) => (
-                    <span key={index} className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
+                    <span key={`${tag}-${index}`} className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
                       <Tag className="h-3 w-3" />
                       {tag}
                     </span>
                   ))}
                 </div>
               )}
-              
+
               {task.dueDate && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
@@ -147,17 +153,17 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
             </button>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" size="sm" className="h-8 w-8 p-0" />}
+              >
+                <MoreHorizontal className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onEdit(task)}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => onDelete(task.id)}
                   className="text-red-600"
                 >
@@ -174,7 +180,16 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
 };
 
 const TodoList: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const savedTasks = localStorage.getItem('tasks');
+    if (!savedTasks) return [];
+
+    return (JSON.parse(savedTasks) as StoredTask[]).map((task) => ({
+      ...task,
+      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+      createdAt: new Date(task.createdAt)
+    }));
+  });
   const [newTask, setNewTask] = useState('');
   const [newTaskDate, setNewTaskDate] = useState('');
   const [newTaskTime, setNewTaskTime] = useState('');
@@ -200,19 +215,6 @@ const TodoList: React.FC = () => {
     })
   );
 
-  // Load tasks from localStorage on mount
-  useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      const parsedTasks = JSON.parse(savedTasks).map((task: any) => ({
-        ...task,
-        dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-        createdAt: new Date(task.createdAt)
-      }));
-      setTasks(parsedTasks);
-    }
-  }, []);
-
   // Save tasks to localStorage whenever tasks change
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -220,7 +222,7 @@ const TodoList: React.FC = () => {
 
   const addTask = () => {
     if (newTask.trim() === '') return;
-    
+
     const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
     const newTaskObj: Task = {
       id: newId,
@@ -233,7 +235,7 @@ const TodoList: React.FC = () => {
       ...(newTaskDate && { dueDate: new Date(newTaskDate) }),
       ...(newTaskTime && { dueTime: newTaskTime })
     };
-    
+
     setTasks([...tasks, newTaskObj]);
     setNewTask('');
     setNewTaskDate('');
@@ -270,7 +272,7 @@ const TodoList: React.FC = () => {
 
   const saveEdit = () => {
     if (!editingTask || editText.trim() === '') return;
-    
+
     const updatedTasks = tasks.map((task) => {
       if (task.id === editingTask.id) {
         return {
@@ -285,7 +287,7 @@ const TodoList: React.FC = () => {
       }
       return task;
     });
-    
+
     setTasks(updatedTasks);
     setIsEditDialogOpen(false);
     setEditingTask(null);
@@ -310,7 +312,7 @@ const TodoList: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       addTask();
     }
@@ -318,7 +320,7 @@ const TodoList: React.FC = () => {
 
   const formatDueDate = (task: Task) => {
     if (!task.dueDate) return null;
-    
+
     const dateStr = format(task.dueDate, 'MMM dd, yyyy');
     const timeStr = task.dueTime ? ` at ${task.dueTime}` : '';
     return `${dateStr}${timeStr}`;
@@ -340,10 +342,10 @@ const TodoList: React.FC = () => {
     const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+
     const matchesCategory = !filterCategory || task.category === filterCategory;
     const matchesPriority = !filterPriority || task.priority === filterPriority;
-    
+
     return matchesSearch && matchesCategory && matchesPriority;
   });
 
@@ -361,7 +363,7 @@ const TodoList: React.FC = () => {
                   type="text"
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onKeyDown={handleKeyDown}
                   placeholder="Write a new task..."
                   className="mb-2"
                 />
@@ -577,4 +579,4 @@ const TodoList: React.FC = () => {
   );
 };
 
-export default TodoList; 
+export default TodoList;
