@@ -68,7 +68,7 @@ export function Header() {
               <Moon className="h-4 w-4" />
             )}
           </Button>
-          <Button size="sm" variant="outline" onClick={() => navigate("/auth")}>
+          <Button size="sm" variant="outline" onClick={() => navigate("/sign-in")}>
             Sign In
           </Button>
           <Button size="sm" onClick={() => navigate("/todo-list")}>

@@ -8,11 +8,18 @@ const lazyPage =
 
 export const router = createBrowserRouter([
   {
-    path: "/auth",
+    path: "/sign-in",
     // loader: authLoader,
     HydrateFallback: () => <SpinnerComponentPage />,
     // errorElement: <ErrorBoundary />,
-    lazy: lazyPage(() => import("@/page/Auth")),
+    lazy: lazyPage(() => import("@/page/SingInPage")),
+  },
+  {
+    path: "/sign-up",
+    // loader: authLoader,
+    HydrateFallback: () => <SpinnerComponentPage />,
+    // errorElement: <ErrorBoundary />,
+    lazy: lazyPage(() => import("@/page/SingUpPage")),
   },
   {
     path: "/",
@@ -57,8 +64,8 @@ export const router = createBrowserRouter([
   //   path: "403",
   //   lazy: lazyPage(() => import("@/pages/public/Forbidden")),
   // },
-  // {
-  //   path: "*",
-  //   lazy: lazyPage(() => import("@/pages/public/NotFound")),
-  // },
+  {
+    path: "*",
+    lazy: lazyPage(() => import("@/page/NotFoundPage")),
+  },
 ]);

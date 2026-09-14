@@ -78,16 +78,16 @@ export function HeroSection() {
             alt="light app screen"
             className="dark:hidden"
             height="auto"
-            src="https://storage.efferd.com/screen/dashboard-light.webp"
+            src="/pro.webp"
             width="auto"
           />
-          <img
+          {/* <img
             alt="dark app screen"
             className="hidden dark:block"
             height="auto"
             src="https://storage.efferd.com/screen/dashboard-dark.webp"
             width="auto"
-          />
+          /> */}
         </div>
         <FullWidthDivider className="-bottom-px" />
       </div>
