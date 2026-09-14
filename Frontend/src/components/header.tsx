@@ -1,18 +1,18 @@
-import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
-import { useScroll } from "@/hooks/use-scroll";
-import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/mobile-nav";
-import { Link, useNavigate } from "react-router";
-import { useTheme } from "./theme-provider";
+import { Button } from "@/components/ui/button";
+import { useScroll } from "@/hooks/use-scroll";
+import { cn } from "@/lib/utils";
 import { Moon, Sun } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useTheme } from "./theme-provider";
 
-interface NavLink {
-  label: string;
-  href: string;
-}
+// interface NavLink {
+//   label: string;
+//   href: string;
+// }
 
-export const navLinks: NavLink[] = [{ label: "About", href: "/about" }];
+// export const navLinks: NavLink[] = [{ label: "About", href: "/about" }];
 
 export function Header() {
   const { theme, setTheme } = useTheme();
@@ -21,7 +21,7 @@ export function Header() {
     setTheme(theme === "dark" ? "light" : "dark");
   };
   const scrolled = useScroll(10);
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <header
@@ -43,7 +43,7 @@ export function Header() {
       >
         <a
           className="rounded-md p-2 hover:bg-muted dark:hover:bg-muted/50"
-          href="#"
+          href="/"
         >
           <Logo />
         </a>
@@ -71,7 +71,9 @@ export function Header() {
           <Button size="sm" variant="outline" onClick={() => navigate("/auth")}>
             Sign In
           </Button>
-          <Button size="sm">Get Started</Button>
+          <Button size="sm" onClick={() => navigate("/todo-list")}>
+            Get Started
+          </Button>
         </div>
         <MobileNav />
       </nav>

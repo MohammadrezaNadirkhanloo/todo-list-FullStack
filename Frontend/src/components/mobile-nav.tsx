@@ -1,9 +1,8 @@
-import { cn } from "@/lib/utils";
-import React from "react";
-import { Button } from "@/components/ui/button";
 import { Portal, PortalBackdrop } from "@/components/portal";
-import { navLinks } from "@/components/header";
-import { XIcon, MenuIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { MenuIcon, XIcon } from "lucide-react";
+import React from "react";
 
 export function MobileNav() {
 	const [open, setOpen] = React.useState(false);
@@ -36,9 +35,9 @@ export function MobileNav() {
 						data-slot={open ? "open" : "closed"}
 					>
 						<div className="grid gap-y-2">
-							{navLinks.map((link) => (
+							{/* {navLinks.map((link) => (
 								<Button className="justify-start" key={link.label} variant="ghost" render={<a href={link.href} />} nativeButton={false}>{link.label}</Button>
-							))}
+							))} */}
 						</div>
 						<div className="mt-12 flex flex-col gap-2">
 							<Button className="w-full" variant="outline">

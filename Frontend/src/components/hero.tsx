@@ -2,12 +2,14 @@ import { DecorIcon } from "@/components/decor-icon";
 import { FullWidthDivider } from "@/components/full-width-divider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon, GitPullRequest, PhoneCallIcon } from "lucide-react";
-import { RainbowButton } from "./ui/rainbow-button";
-import { GithubIcon } from "./logo";
+import { ArrowRightIcon } from "lucide-react";
 import { BookACallDialog } from "./Infomy";
+import { GithubIcon } from "./icons/github-icon";
+import { RainbowButton } from "./ui/rainbow-button";
+import { useNavigate } from "react-router";
 
 export function HeroSection() {
+    const navigate = useNavigate();
   return (
     <section>
       <div className="relative flex flex-col items-center justify-center gap-5 px-4 py-12 md:px-4 md:py-24 lg:py-28">
@@ -59,7 +61,7 @@ export function HeroSection() {
 
         <div className="fade-in slide-in-from-bottom-10 flex w-fit animate-in items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
           <BookACallDialog />
-          <Button>
+          <Button onClick={() => navigate("/todo-list")}>
             Get started <ArrowRightIcon data-icon="inline-end" />
           </Button>
         </div>

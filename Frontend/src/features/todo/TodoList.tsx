@@ -1,29 +1,50 @@
 import {
-    closestCenter,
-    DndContext,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
 import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    useSortable,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { format } from 'date-fns';
-import { Calendar, CheckCircle, Circle, Edit, GripVertical, MoreHorizontal, Search, Tag, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { format } from "date-fns";
+import {
+  Calendar,
+  CheckCircle,
+  Circle,
+  Edit,
+  GripVertical,
+  MoreHorizontal,
+  Search,
+  Tag,
+  Trash2,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 interface Task {
   id: number;
@@ -33,33 +54,46 @@ interface Task {
   dueTime?: string;
   createdAt: Date;
   category?: string;
-  priority: 'low' | 'medium' | 'high';
+  priority: "low" | "medium" | "high";
   tags: string[];
 }
 
 // Shape of a task as it's stored in localStorage (dates are strings, not Date objects)
-interface StoredTask extends Omit<Task, 'dueDate' | 'createdAt'> {
+interface StoredTask extends Omit<Task, "dueDate" | "createdAt"> {
   dueDate?: string;
   createdAt: string;
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-blue-100 border-blue-200 text-blue-800',
-  medium: 'bg-yellow-100 border-yellow-200 text-yellow-800',
-  high: 'bg-red-100 border-red-200 text-red-800'
+  low: "bg-blue-100 border-blue-200 text-blue-800",
+  medium: "bg-yellow-100 border-yellow-200 text-yellow-800",
+  high: "bg-red-100 border-red-200 text-red-800",
 };
 
 const PRIORITY_LABELS = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High'
+  low: "Low",
+  medium: "Medium",
+  high: "High",
 };
 
 const CATEGORIES = [
-  'Work', 'Personal', 'Shopping', 'Health', 'Finance', 'Home', 'Other'
+  "Work",
+  "Personal",
+  "Shopping",
+  "Health",
+  "Finance",
+  "Home",
+  "Other",
 ];
 
-const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatDueDate }: {
+const SortableTaskItem = ({
+  task,
+  onToggle,
+  onEdit,
+  onDelete,
+  isOverdue,
+  formatDueDate,
+}: {
   task: Task;
   onToggle: (id: number) => void;
   onEdit: (task: Task) => void;
@@ -87,8 +121,8 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
       ref={setNodeRef}
       style={style}
       className={`transition-all duration-200 hover:shadow-md ${
-        task.completed ? 'opacity-60' : ''
-      } ${isOverdue(task) ? 'border-red-500 bg-red-50' : ''}`}
+        task.completed ? "opacity-60" : ""
+      } ${isOverdue(task) ? "border-red-500 bg-red-50" : ""}`}
     >
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
@@ -108,10 +142,14 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                <p
+                  className={`text-sm font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}
+                >
                   {task.text}
                 </p>
-                <span className={`px-2 py-1 text-xs rounded-full border ${PRIORITY_COLORS[task.priority]}`}>
+                <span
+                  className={`px-2 py-1 text-xs rounded-full border ${PRIORITY_COLORS[task.priority]}`}
+                >
                   {PRIORITY_LABELS[task.priority]}
                 </span>
                 {task.category && (
@@ -124,7 +162,10 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
               {task.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-1">
                   {task.tags.map((tag, index) => (
-                    <span key={`${tag}-${index}`} className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
+                    <span
+                      key={`${tag}-${index}`}
+                      className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1"
+                    >
                       <Tag className="h-3 w-3" />
                       {tag}
                     </span>
@@ -135,7 +176,11 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
               {task.dueDate && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
-                  <span className={isOverdue(task) ? 'text-red-600 font-medium' : ''}>
+                  <span
+                    className={
+                      isOverdue(task) ? "text-red-600 font-medium" : ""
+                    }
+                  >
                     {formatDueDate(task)}
                   </span>
                 </div>
@@ -154,7 +199,9 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
 
             <DropdownMenu>
               <DropdownMenuTrigger
-                render={<Button variant="ghost" size="sm" className="h-8 w-8 p-0" />}
+                render={
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" />
+                }
               >
                 <MoreHorizontal className="h-4 w-4" />
               </DropdownMenuTrigger>
@@ -181,49 +228,54 @@ const SortableTaskItem = ({ task, onToggle, onEdit, onDelete, isOverdue, formatD
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>(() => {
-    const savedTasks = localStorage.getItem('tasks');
+    const savedTasks = localStorage.getItem("tasks");
     if (!savedTasks) return [];
 
     return (JSON.parse(savedTasks) as StoredTask[]).map((task) => ({
       ...task,
       dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-      createdAt: new Date(task.createdAt)
+      createdAt: new Date(task.createdAt),
     }));
   });
-  const [newTask, setNewTask] = useState('');
-  const [newTaskDate, setNewTaskDate] = useState('');
-  const [newTaskTime, setNewTaskTime] = useState('');
-  const [newTaskCategory, setNewTaskCategory] = useState('');
-  const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [newTaskTags, setNewTaskTags] = useState('');
+  const [newTask, setNewTask] = useState("");
+  const [newTaskDate, setNewTaskDate] = useState("");
+  const [newTaskTime, setNewTaskTime] = useState("");
+  const [newTaskCategory, setNewTaskCategory] = useState("");
+  const [newTaskPriority, setNewTaskPriority] = useState<
+    "low" | "medium" | "high"
+  >("medium");
+  const [newTaskTags, setNewTaskTags] = useState("");
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [editText, setEditText] = useState('');
-  const [editDate, setEditDate] = useState('');
-  const [editTime, setEditTime] = useState('');
-  const [editCategory, setEditCategory] = useState('');
-  const [editPriority, setEditPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [editTags, setEditTags] = useState('');
+  const [editText, setEditText] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editPriority, setEditPriority] = useState<"low" | "medium" | "high">(
+    "medium",
+  );
+  const [editTags, setEditTags] = useState("");
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterPriority, setFilterPriority] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterPriority, setFilterPriority] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   // Save tasks to localStorage whenever tasks change
   useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   const addTask = () => {
-    if (newTask.trim() === '') return;
+    if (newTask.trim() === "") return;
 
-    const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+    const newId =
+      tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
     const newTaskObj: Task = {
       id: newId,
       text: newTask.trim(),
@@ -231,18 +283,21 @@ const TodoList: React.FC = () => {
       createdAt: new Date(),
       priority: newTaskPriority,
       category: newTaskCategory || undefined,
-      tags: newTaskTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+      tags: newTaskTags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0),
       ...(newTaskDate && { dueDate: new Date(newTaskDate) }),
-      ...(newTaskTime && { dueTime: newTaskTime })
+      ...(newTaskTime && { dueTime: newTaskTime }),
     };
 
     setTasks([...tasks, newTaskObj]);
-    setNewTask('');
-    setNewTaskDate('');
-    setNewTaskTime('');
-    setNewTaskCategory('');
-    setNewTaskPriority('medium');
-    setNewTaskTags('');
+    setNewTask("");
+    setNewTaskDate("");
+    setNewTaskTime("");
+    setNewTaskCategory("");
+    setNewTaskPriority("medium");
+    setNewTaskTags("");
   };
 
   const toggleTask = (taskId: number) => {
@@ -256,22 +311,22 @@ const TodoList: React.FC = () => {
   };
 
   const deleteTask = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
+    setTasks(tasks.filter((task) => task.id !== taskId));
   };
 
   const openEditDialog = (task: Task) => {
     setEditingTask(task);
     setEditText(task.text);
-    setEditDate(task.dueDate ? format(task.dueDate, 'yyyy-MM-dd') : '');
-    setEditTime(task.dueTime || '');
-    setEditCategory(task.category || '');
+    setEditDate(task.dueDate ? format(task.dueDate, "yyyy-MM-dd") : "");
+    setEditTime(task.dueTime || "");
+    setEditCategory(task.category || "");
     setEditPriority(task.priority);
-    setEditTags(task.tags.join(', '));
+    setEditTags(task.tags.join(", "));
     setIsEditDialogOpen(true);
   };
 
   const saveEdit = () => {
-    if (!editingTask || editText.trim() === '') return;
+    if (!editingTask || editText.trim() === "") return;
 
     const updatedTasks = tasks.map((task) => {
       if (task.id === editingTask.id) {
@@ -282,7 +337,10 @@ const TodoList: React.FC = () => {
           dueTime: editTime || undefined,
           category: editCategory || undefined,
           priority: editPriority,
-          tags: editTags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+          tags: editTags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0),
         };
       }
       return task;
@@ -291,12 +349,12 @@ const TodoList: React.FC = () => {
     setTasks(updatedTasks);
     setIsEditDialogOpen(false);
     setEditingTask(null);
-    setEditText('');
-    setEditDate('');
-    setEditTime('');
-    setEditCategory('');
-    setEditPriority('medium');
-    setEditTags('');
+    setEditText("");
+    setEditDate("");
+    setEditTime("");
+    setEditCategory("");
+    setEditPriority("medium");
+    setEditTags("");
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -313,7 +371,7 @@ const TodoList: React.FC = () => {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       addTask();
     }
   };
@@ -321,8 +379,8 @@ const TodoList: React.FC = () => {
   const formatDueDate = (task: Task) => {
     if (!task.dueDate) return null;
 
-    const dateStr = format(task.dueDate, 'MMM dd, yyyy');
-    const timeStr = task.dueTime ? ` at ${task.dueTime}` : '';
+    const dateStr = format(task.dueDate, "MMM dd, yyyy");
+    const timeStr = task.dueTime ? ` at ${task.dueTime}` : "";
     return `${dateStr}${timeStr}`;
   };
 
@@ -331,17 +389,20 @@ const TodoList: React.FC = () => {
     const now = new Date();
     const dueDate = new Date(task.dueDate);
     if (task.dueTime) {
-      const [hours, minutes] = task.dueTime.split(':');
+      const [hours, minutes] = task.dueTime.split(":");
       dueDate.setHours(parseInt(hours), parseInt(minutes));
     }
     return !task.completed && dueDate < now;
   };
 
   // Filter tasks based on search and filters
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch =
+      task.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      task.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
 
     const matchesCategory = !filterCategory || task.category === filterCategory;
     const matchesPriority = !filterPriority || task.priority === filterPriority;
@@ -350,10 +411,13 @@ const TodoList: React.FC = () => {
   });
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="p-6">
+      
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Todo List</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            Todo List
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-4 mb-6">
@@ -388,13 +452,19 @@ const TodoList: React.FC = () => {
                     className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
                   >
                     <option value="">Select Category</option>
-                    {CATEGORIES.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </select>
                   <select
                     value={newTaskPriority}
-                    onChange={(e) => setNewTaskPriority(e.target.value as 'low' | 'medium' | 'high')}
+                    onChange={(e) =>
+                      setNewTaskPriority(
+                        e.target.value as "low" | "medium" | "high",
+                      )
+                    }
                     className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
                   >
                     <option value="low">Low Priority</option>
@@ -438,8 +508,10 @@ const TodoList: React.FC = () => {
               className="px-3 py-2 border border-input bg-background rounded-md text-sm"
             >
               <option value="">All Categories</option>
-              {CATEGORIES.map(category => (
-                <option key={category} value={category}>{category}</option>
+              {CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
               ))}
             </select>
             <select
@@ -461,7 +533,9 @@ const TodoList: React.FC = () => {
           <Card>
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground italic">
-                {tasks.length === 0 ? 'No tasks yet. Add a new task to get started!' : 'No tasks match your search criteria.'}
+                {tasks.length === 0
+                  ? "No tasks yet. Add a new task to get started!"
+                  : "No tasks match your search criteria."}
               </p>
             </CardContent>
           </Card>
@@ -472,7 +546,7 @@ const TodoList: React.FC = () => {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={filteredTasks.map(task => task.id)}
+              items={filteredTasks.map((task) => task.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-3">
@@ -537,8 +611,10 @@ const TodoList: React.FC = () => {
                   className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
                 >
                   <option value="">No Category</option>
-                  {CATEGORIES.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                  {CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -546,7 +622,9 @@ const TodoList: React.FC = () => {
                 <label className="text-sm font-medium">Priority</label>
                 <select
                   value={editPriority}
-                  onChange={(e) => setEditPriority(e.target.value as 'low' | 'medium' | 'high')}
+                  onChange={(e) =>
+                    setEditPriority(e.target.value as "low" | "medium" | "high")
+                  }
                   className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
                 >
                   <option value="low">Low Priority</option>
@@ -566,12 +644,13 @@ const TodoList: React.FC = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={saveEdit}>
-              Save Changes
-            </Button>
+            <Button onClick={saveEdit}>Save Changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
