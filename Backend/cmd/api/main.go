@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
-	// "github.com/yourorg/goclean/internal/bootstrap"
-	// "github.com/yourorg/goclean/internal/config"
+	"github.com/MohammadrezaNadirkhanloo/todo-list-FullStack/internal/config"
 )
 
 //
@@ -41,20 +39,20 @@ func run() error {
 		return fmt.Errorf("Error loading configuration (config) : %w", err)
 	}
 
-	app, err := bootstrap.New(ctx, cfg, version)
-	if err != nil {
-		return err
-	}
-	defer func() {
+	// app, err := bootstrap.New(ctx, cfg, version)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer func() {
 
-		if cerr := app.Close(context.Background()); cerr != nil {
-			fmt.Fprintf(os.Stderr, "Error closing resources (bootstrap): %v\n", cerr)
-		}
-	}()
+	// 	if cerr := app.Close(context.Background()); cerr != nil {
+	// 		fmt.Fprintf(os.Stderr, "Error closing resources (bootstrap): %v\n", cerr)
+	// 	}
+	// }()
 
-	if err := app.Server.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
-		return err
-	}
+	// if err := app.Server.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
+	// 	return err
+	// }
 
 	return nil
 }
