@@ -1,0 +1,8 @@
+env: development
+
+server:
+  port: "8080"
+  runMode: debug
+  readTimeout: 10s
+  writeTimeout: 15s
+  shutdownTimeout: 15s
