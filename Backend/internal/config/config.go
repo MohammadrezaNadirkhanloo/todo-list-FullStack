@@ -17,11 +17,14 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Port            string        `mapstructure:"port"`
-	RunMode         string        `mapstructure:"runMode"` // debug | release
-	ReadTimeout     time.Duration `mapstructure:"readTimeout"`
-	WriteTimeout    time.Duration `mapstructure:"writeTimeout"`
-	ShutdownTimeout time.Duration `mapstructure:"shutdownTimeout"`
+	Port              string        `mapstructure:"port"`
+	RunMode           string        `mapstructure:"runMode"` // debug | release
+	ReadTimeout       time.Duration `mapstructure:"readTimeout"`
+	WriteTimeout      time.Duration `mapstructure:"writeTimeout"`
+	ShutdownTimeout   time.Duration `mapstructure:"shutdownTimeout"`
+	TrustedProxies    []string      `mapstructure:"trustedProxies"`
+	IdleTimeout       time.Duration `mapstructure:"idleTimeout"`
+	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
 }
 
 const envPrefix = "APP"

@@ -6,3 +6,6 @@ server:
   readTimeout: 10s
   writeTimeout: 15s
   shutdownTimeout: 15s
+  readHeaderTimeout: 5s
+  idleTimeout: 120s
+  trustedProxies: []
