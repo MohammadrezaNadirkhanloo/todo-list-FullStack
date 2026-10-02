@@ -26,11 +26,14 @@ func run() error {
 		os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	cfg, err := config.Load("")
+	configDir := os.Getenv("APP_CONFIG_DIR")
+	if configDir == "" {
+		configDir = "config"
+	}
+	cfg, err := config.Load(configDir)
 	if err != nil {
 		return fmt.Errorf("Error loading configuration (config) : %w", err)
 	}
-
 	app, err := bootstrap.New(ctx, cfg, version)
 	if err != nil {
 		return err

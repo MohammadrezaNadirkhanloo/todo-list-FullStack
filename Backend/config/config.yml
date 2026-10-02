@@ -9,3 +9,17 @@ server:
   readHeaderTimeout: 5s
   idleTimeout: 120s
   trustedProxies: []
+
+postgres:
+  host: localhost
+  port: "5432"
+  user: postgres
+  # password: ← فقط از APP_POSTGRES_PASSWORD
+  dbName: tododb
+  sslMode: disable
+  timeZone: UTC
+  maxIdleConns: 10
+  maxOpenConns: 50
+  connMaxLifetime: 30m
+  connMaxIdleTime: 5m
+  slowQueryThreshold: 200ms

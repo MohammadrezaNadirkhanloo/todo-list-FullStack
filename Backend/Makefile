@@ -1,7 +1,10 @@
+-include .env
+export
+
 .DEFAULT_GOAL := help
 SHELL := /bin/sh
 
-APP_NAME    := goclean
+APP_NAME    := todo
 MAIN_PKG    := ./cmd/api
 
 .PHONY: help

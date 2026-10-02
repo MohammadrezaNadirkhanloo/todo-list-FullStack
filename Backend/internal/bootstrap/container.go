@@ -7,13 +7,14 @@ import (
 	"github.com/MohammadrezaNadirkhanloo/internal/api"
 	"github.com/MohammadrezaNadirkhanloo/internal/api/handler"
 	"github.com/MohammadrezaNadirkhanloo/internal/config"
+	"github.com/MohammadrezaNadirkhanloo/internal/infra/database"
 )
 
 type Container struct {
 	Config *config.Config
 	// Logger  logging.Logger
 	// Metrics *metrics.Registry
-	// DB      *database.DB
+	DB *database.DB
 	// Cache   *cache.Client
 	// DBLog لاگ ممیزی و اپلیکیشن در PostgreSQL. nil یعنی خاموش.
 	// DBLog *dblog.Manager
@@ -24,6 +25,12 @@ type Container struct {
 
 func New(ctx context.Context, cfg *config.Config, version string) (*Container, error) {
 	c := &Container{Config: cfg}
+
+	db, err := database.Connect(ctx, cfg.Postgres)
+	if err != nil {
+		return nil, err
+	}
+	c.DB = db
 
 	handlers := api.Handlers{
 		Health: handler.NewHealthHandler(version),

@@ -28,6 +28,8 @@ func NewRouter(dep RouterDeps) (*gin.Engine, error) {
 
 	r.Use(
 		middleware.RequestID(),
+		gin.Recovery(),
+		gin.Logger(),
 	)
 
 	r.GET("/healthz", dep.Handlers.Health.Live)

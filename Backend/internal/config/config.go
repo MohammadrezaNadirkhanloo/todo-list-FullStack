@@ -12,8 +12,9 @@ import (
 )
 
 type Config struct {
-	Env    string       `mapstructure:"env"`
-	Server ServerConfig `mapstructure:"server"`
+	Env      string         `mapstructure:"env"`
+	Server   ServerConfig   `mapstructure:"server"`
+	Postgres PostgresConfig `mapstructure:"postgres"`
 }
 
 type ServerConfig struct {
@@ -25,6 +26,28 @@ type ServerConfig struct {
 	TrustedProxies    []string      `mapstructure:"trustedProxies"`
 	IdleTimeout       time.Duration `mapstructure:"idleTimeout"`
 	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
+}
+
+type PostgresConfig struct {
+	Host               string        `mapstructure:"host"`
+	Port               string        `mapstructure:"port"`
+	User               string        `mapstructure:"user"`
+	Password           string        `mapstructure:"password"`
+	DBName             string        `mapstructure:"dbName"`
+	SSLMode            string        `mapstructure:"sslMode"`
+	TimeZone           string        `mapstructure:"timeZone"`
+	MaxIdleConns       int           `mapstructure:"maxIdleConns"`
+	MaxOpenConns       int           `mapstructure:"maxOpenConns"`
+	ConnMaxLifetime    time.Duration `mapstructure:"connMaxLifetime"`
+	ConnMaxIdleTime    time.Duration `mapstructure:"connMaxIdleTime"`
+	SlowQueryThreshold time.Duration `mapstructure:"slowQueryThreshold"`
+}
+
+func (p PostgresConfig) DSN() string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
+		p.Host, p.Port, p.User, p.Password, p.DBName, p.SSLMode, p.TimeZone,
+	)
 }
 
 const envPrefix = "APP"

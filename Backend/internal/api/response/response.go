@@ -9,11 +9,10 @@ import (
 )
 
 type Envelope struct {
-	Success   bool       `json:"success"`
-	Result    any        `json:"result,omitempty"`
-	Message   string     `json:"message,omitempty"`
-	Error     *ErrorBody `json:"error,omitempty"`
-	RequestID string     `json:"requestId,omitempty"`
+	Success bool       `json:"success"`
+	Result  any        `json:"result,omitempty"`
+	Message string     `json:"message,omitempty"`
+	Error   *ErrorBody `json:"error,omitempty"`
 }
 
 type ErrorBody struct {
@@ -59,19 +58,18 @@ func Raw(c *gin.Context, status int, body any) {
 }
 
 func OK(c *gin.Context, result any) {
-	c.JSON(http.StatusOK, Envelope{Success: true, Result: result, RequestID: requestID(c)})
+	c.JSON(http.StatusOK, Envelope{Success: true, Result: result})
 }
 
 func Created(c *gin.Context, result any) {
-	c.JSON(http.StatusCreated, Envelope{Success: true, Result: result, RequestID: requestID(c)})
+	c.JSON(http.StatusCreated, Envelope{Success: true, Result: result})
 }
 
 func NoContent(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-
-//error
+// error
 func Fail(c *gin.Context, err error) {
 	message := apperror.UserMessage(err)
 
@@ -91,11 +89,11 @@ func Fail(c *gin.Context, err error) {
 		Success:   false,
 		Message:   message,
 		Error:     body,
-		RequestID: requestID(c),
 	})
 	//return
 }
-//json error
+
+// json error
 func FailValidation(c *gin.Context, message string, fields []FieldError) {
 	c.AbortWithStatusJSON(http.StatusUnprocessableEntity, Envelope{
 		Success: false,
@@ -105,7 +103,6 @@ func FailValidation(c *gin.Context, message string, fields []FieldError) {
 			Message:    message,
 			Validation: fields,
 		},
-		RequestID: requestID(c),
 	})
 }
 
