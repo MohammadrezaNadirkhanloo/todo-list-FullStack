@@ -1,13 +1,9 @@
--- طرح اولیه: کاربران و کارها.
-
 BEGIN;
 
 CREATE TABLE users (
     id            BIGSERIAL PRIMARY KEY,
     username      VARCHAR(64) NOT NULL,
-    password_hash TEXT        NOT NULL,           -- bcrypt، نه خودِ رمز
-
-    -- فیلدهای BaseModel
+    password_hash TEXT        NOT NULL,       
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at    TIMESTAMPTZ,
     deleted_at    TIMESTAMPTZ,
