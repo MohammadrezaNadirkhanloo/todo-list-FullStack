@@ -11,7 +11,6 @@ const (
 	keyRoles
 )
 
-
 func WithRequestID(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, keyRequestID, id)
 }
@@ -21,14 +20,11 @@ func RequestID(ctx context.Context) (string, bool) {
 	return v, ok
 }
 
-// --- کاربر احرازهویت‌شده ---
-
 func WithUser(ctx context.Context, id int64, username string, roles []string) context.Context {
 	ctx = context.WithValue(ctx, keyUserID, id)
 	ctx = context.WithValue(ctx, keyUsername, username)
 	return context.WithValue(ctx, keyRoles, roles)
 }
-
 
 func UserID(ctx context.Context) (int64, bool) {
 	v, ok := ctx.Value(keyUserID).(int64)

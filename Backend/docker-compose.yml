@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${APP_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${APP_POSTGRES_PASSWORD:?set APP_POSTGRES_PASSWORD in .env (cp .env.example .env)}
+      POSTGRES_DB: ${APP_POSTGRES_DBNAME:-tododb}
+    ports:
+      - "127.0.0.1:${APP_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  postgres_data:
