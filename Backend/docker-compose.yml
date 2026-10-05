@@ -19,5 +19,30 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--requirepass",
+        "${APP_REDIS_PASSWORD:?set APP_REDIS_PASSWORD in .env (cp .env.example .env)}",
+      ]
+    environment:
+      REDISCLI_AUTH: ${APP_REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:${APP_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   postgres_data:
+  redis_data:
