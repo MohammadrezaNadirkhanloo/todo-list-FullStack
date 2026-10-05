@@ -1,20 +1,20 @@
 package model
-
+ 
 import (
 	"time"
-
+ 
 	"github.com/lib/pq"
 )
-
+ 
 const (
 	PriorityLow    = "low"
 	PriorityMedium = "medium"
 	PriorityHigh   = "high"
 )
-
+ 
 type Todo struct {
 	BaseModel
-
+ 
 	UserID   int64          `gorm:"not null"                          json:"userId"`
 	Title    string         `gorm:"size:200;not null"                 json:"title"`
 	Done     bool           `gorm:"not null;default:false"            json:"done"`

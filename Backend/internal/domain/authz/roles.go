@@ -4,12 +4,10 @@ const (
 	SubjectDashboard = "Dashboard"
 	SubjectCategory  = "Category"
 	SubjectProduct   = "Product"
+	SubjectTodo      = "Todo"
 	SubjectUsers     = "Users"
 	SubjectRoles     = "Roles"
 	SubjectSettings  = "Settings"
-
-	SubjectAuditLog = "AuditLog"
-	SubjectAppLog   = "AppLog"
 )
 
 const (

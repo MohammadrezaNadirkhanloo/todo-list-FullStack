@@ -22,10 +22,17 @@ type UserOutput struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func ToUserOutput(m model.User) UserOutput {
+func ToUserOutput(m model.UserModel) UserOutput {
 	return UserOutput{
 		ID:        m.ID,
 		Username:  m.Username,
 		CreatedAt: m.CreatedAt,
 	}
+}
+
+type TokenPair struct {
+	AccessToken   string    `json:"-"`
+	AccessTokenID string    `json:"-"`
+	RefreshToken  string    `json:"-"`
+	ExpiresAt     time.Time `json:"expiresAt"`
 }

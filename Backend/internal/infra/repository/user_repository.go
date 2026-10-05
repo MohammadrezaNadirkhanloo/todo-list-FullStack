@@ -10,14 +10,14 @@ import (
 )
 
 type userRepository struct {
-	*BaseRepository[model.User]
+	*BaseRepository[model.UserModel]
 }
 
 var _ repository.UserRepository = (*userRepository)(nil)
 
 func NewUserRepository(db *database.DB) repository.UserRepository {
 	return &userRepository{
-		BaseRepository: NewBaseRepository[model.User](db, Options{
+		BaseRepository: NewBaseRepository[model.UserModel](db, Options{
 			Entity: "User",
 			Spec:   model.UserSpec,
 		}),
@@ -25,7 +25,7 @@ func NewUserRepository(db *database.DB) repository.UserRepository {
 }
 
 
-func (r *userRepository) FindByUsername(ctx context.Context, username string) (model.User, error) {
+func (r *userRepository) FindByUsername(ctx context.Context, username string) (model.UserModel, error) {
 	return r.firstBy(ctx, nil, "username = ?", username)
 }
 
@@ -35,7 +35,7 @@ func (r *userRepository) ExistsByUsername(ctx context.Context, username string) 
 
 func (r *userRepository) UpdatePasswordHash(ctx context.Context, userID int64, hash string) error {
 	res := r.DB().WithContext(ctx).
-		Model(&model.User{}).
+		Model(&model.UserModel{}).
 		Where("id = ?", userID).
 		Update("password_hash", hash)
 

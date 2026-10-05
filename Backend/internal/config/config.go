@@ -12,20 +12,29 @@ import (
 )
 
 type Config struct {
-	Env      string         `mapstructure:"env"`
-	Server   ServerConfig   `mapstructure:"server"`
-	Postgres PostgresConfig `mapstructure:"postgres"`
+	Env        string           `mapstructure:"env"`
+	Server     ServerConfig     `mapstructure:"server"`
+	Postgres   PostgresConfig   `mapstructure:"postgres"`
+	Redis      RedisConfig      `mapstructure:"redis"`
+	JWT        JWTConfig        `mapstructure:"jwt"`
+	Authz      AuthzConfig      `mapstructure:"authz"`
+	Password   PasswordConfig   `mapstructure:"password"`
+	Pagination PaginationConfig `mapstructure:"pagination"`
 }
 
 type ServerConfig struct {
 	Port              string        `mapstructure:"port"`
-	RunMode           string        `mapstructure:"runMode"` // debug | release
+	RunMode           string        `mapstructure:"runMode"`
+	APIBasePath       string        `mapstructure:"apiBasePath"`
 	ReadTimeout       time.Duration `mapstructure:"readTimeout"`
 	WriteTimeout      time.Duration `mapstructure:"writeTimeout"`
 	ShutdownTimeout   time.Duration `mapstructure:"shutdownTimeout"`
-	TrustedProxies    []string      `mapstructure:"trustedProxies"`
 	IdleTimeout       time.Duration `mapstructure:"idleTimeout"`
 	ReadHeaderTimeout time.Duration `mapstructure:"readHeaderTimeout"`
+	RequestTimeout    time.Duration `mapstructure:"requestTimeout"`
+	MaxBodyBytes      int64         `mapstructure:"maxBodyBytes"`
+	InsecureCookies   bool          `mapstructure:"insecureCookies"`
+	TrustedProxies    []string      `mapstructure:"trustedProxies"`
 }
 
 type PostgresConfig struct {
@@ -43,12 +52,57 @@ type PostgresConfig struct {
 	SlowQueryThreshold time.Duration `mapstructure:"slowQueryThreshold"`
 }
 
+type RedisConfig struct {
+	Host         string        `mapstructure:"host"`
+	Port         string        `mapstructure:"port"`
+	Password     string        `mapstructure:"password"`
+	DB           int           `mapstructure:"db"`
+	DialTimeout  time.Duration `mapstructure:"dialTimeout"`
+	ReadTimeout  time.Duration `mapstructure:"readTimeout"`
+	WriteTimeout time.Duration `mapstructure:"writeTimeout"`
+	PoolSize     int           `mapstructure:"poolSize"`
+	MinIdleConns int           `mapstructure:"minIdleConns"`
+}
+
+type JWTConfig struct {
+	AccessSecret string        `mapstructure:"accessSecret"`
+	AccessTTL    time.Duration `mapstructure:"accessTTL"`
+	RefreshTTL   time.Duration `mapstructure:"refreshTTL"`
+	Issuer       string        `mapstructure:"issuer"`
+	Audience     string        `mapstructure:"audience"`
+}
+
+type AuthzConfig struct {
+	Enforce bool `mapstructure:"enforce"`
+}
+
+type PasswordConfig struct {
+	MinLength         int    `mapstructure:"minLength"`
+	MaxLength         int    `mapstructure:"maxLength"`
+	IncludeDigits     bool   `mapstructure:"includeDigits"`
+	IncludeUppercase  bool   `mapstructure:"includeUppercase"`
+	IncludeLowercase  bool   `mapstructure:"includeLowercase"`
+	IncludeSymbols    bool   `mapstructure:"includeSymbols"`
+	Argon2Memory      uint32 `mapstructure:"argon2Memory"`
+	Argon2Iterations  uint32 `mapstructure:"argon2Iterations"`
+	Argon2Parallelism uint8  `mapstructure:"argon2Parallelism"`
+}
+
+type PaginationConfig struct {
+	DefaultPageSize int `mapstructure:"defaultPageSize"`
+	MaxPageSize     int `mapstructure:"maxPageSize"`
+}
+
+func (c *Config) IsProduction() bool { return c.Env == "production" }
+
 func (p PostgresConfig) DSN() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=%s",
 		p.Host, p.Port, p.User, p.Password, p.DBName, p.SSLMode, p.TimeZone,
 	)
 }
+
+func (r RedisConfig) Addr() string { return r.Host + ":" + r.Port }
 
 const envPrefix = "APP"
 
@@ -59,6 +113,7 @@ func Load(configDir string) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 	bindEnvKeys(v)
+
 	if configDir != "" {
 		if err := mergeFileIfExists(v, filepath.Join(configDir, "config.yml")); err != nil {
 			return nil, err
@@ -70,6 +125,7 @@ func Load(configDir string) (*Config, error) {
 			}
 		}
 	}
+
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("config: failed to unmarshal config: %w", err)
@@ -77,7 +133,7 @@ func Load(configDir string) (*Config, error) {
 	return &cfg, nil
 }
 
-func mergeFileIfExists(v *viper.Viper, path string) error { // mergeFileIfExists فایل را در صورت وجود ادغام می‌کند.
+func mergeFileIfExists(v *viper.Viper, path string) error {
 	if _, err := os.Stat(path); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil
@@ -89,6 +145,7 @@ func mergeFileIfExists(v *viper.Viper, path string) error { // mergeFileIfExists
 		return fmt.Errorf("config: failed to open %q: %w", path, err)
 	}
 	defer func() { _ = f.Close() }()
+
 	v.SetConfigType("yml")
 	if err := v.MergeConfig(f); err != nil {
 		return fmt.Errorf("config: failed to merge %q: %w", path, err)

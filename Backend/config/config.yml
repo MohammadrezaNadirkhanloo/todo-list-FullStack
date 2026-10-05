@@ -14,7 +14,6 @@ postgres:
   host: localhost
   port: "5432"
   user: postgres
-  # password: ← فقط از APP_POSTGRES_PASSWORD
   dbName: tododb
   sslMode: disable
   timeZone: UTC
@@ -23,3 +22,37 @@ postgres:
   connMaxLifetime: 30m
   connMaxIdleTime: 5m
   slowQueryThreshold: 200ms
+
+redis:
+  host: localhost
+  port: "6379"
+  db: 0
+  dialTimeout: 5s
+  readTimeout: 3s
+  writeTimeout: 3s
+  poolSize: 10
+  minIdleConns: 2
+ 
+jwt:
+  accessTTL: 15m
+  refreshTTL: 168h
+  issuer: todo-api
+  audience: todo-api
+ 
+authz:
+  enforce: true
+ 
+password:
+  minLength: 12
+  maxLength: 128
+  includeDigits: true
+  includeUppercase: true
+  includeLowercase: true
+  includeSymbols: false
+  argon2Memory: 65536
+  argon2Iterations: 3
+  argon2Parallelism: 2
+ 
+pagination:
+  defaultPageSize: 20
+  maxPageSize: 100

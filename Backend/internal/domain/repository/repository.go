@@ -35,11 +35,11 @@ type TodoRepository interface {
 }
 
 type UserRepository interface {
-	Reader[model.User]
+	Reader[model.UserModel]
 
-	Create(ctx context.Context, user *model.User) error
+	Create(ctx context.Context, user *model.UserModel) error
 
-	FindByUsername(ctx context.Context, username string) (model.User, error)
+	FindByUsername(ctx context.Context, username string) (model.UserModel, error)
 
 	ExistsByUsername(ctx context.Context, username string) (bool, error)
 
