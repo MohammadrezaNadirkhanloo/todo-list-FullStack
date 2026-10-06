@@ -30,7 +30,7 @@ func NewTokenUsecase(
 	return &TokenUsecase{tokens: tokens, store: store, users: users, cfg: cfg}
 }
 
-func (u *TokenUsecase) Issue(ctx context.Context, user model.UserModel) (dto.TokenPair, error) {
+func (u *TokenUsecase) Issue(ctx context.Context, user model.User) (dto.TokenPair, error) {
 	var zero dto.TokenPair
 
 	access, err := u.tokens.Issue(user.ID, user.Username, []string{authz.RoleUser})

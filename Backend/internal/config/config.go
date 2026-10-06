@@ -20,10 +20,14 @@ type Config struct {
 	Authz      AuthzConfig      `mapstructure:"authz"`
 	Password   PasswordConfig   `mapstructure:"password"`
 	Pagination PaginationConfig `mapstructure:"pagination"`
+	Cors       CORSConfig       `mapstructure:"cors"`
+	CSRF       CSRFConfig       `mapstructure:"csrf"`
+	RateLimit  RateLimitConfig  `mapstructure:"ratelimit"`
 }
 
 type ServerConfig struct {
 	Port              string        `mapstructure:"port"`
+	Domain            string        `mapstructure:"domain"`
 	RunMode           string        `mapstructure:"runMode"`
 	APIBasePath       string        `mapstructure:"apiBasePath"`
 	ReadTimeout       time.Duration `mapstructure:"readTimeout"`
@@ -72,8 +76,17 @@ type JWTConfig struct {
 	Audience     string        `mapstructure:"audience"`
 }
 
+type AuthzMode string
+
+const (
+	AuthzRoles AuthzMode = "roles"
+	AuthzRules AuthzMode = "rules"
+	AuthzBoth AuthzMode = "both"
+)
+
 type AuthzConfig struct {
-	Enforce bool `mapstructure:"enforce"`
+	Enforce bool      `mapstructure:"enforce"`
+	Mode    AuthzMode `mapstructure:"mode"`
 }
 
 type PasswordConfig struct {
@@ -91,6 +104,26 @@ type PasswordConfig struct {
 type PaginationConfig struct {
 	DefaultPageSize int `mapstructure:"defaultPageSize"`
 	MaxPageSize     int `mapstructure:"maxPageSize"`
+}
+
+type CORSConfig struct {
+	AllowOrigins     []string      `mapstructure:"allowOrigins"`
+	AllowCredentials bool          `mapstructure:"allowCredentials"`
+	MaxAge           time.Duration `mapstructure:"maxAge"`
+}
+
+type CSRFConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+}
+
+type RateLimitConfig struct {
+	Enabled     bool          `mapstructure:"enabled"`
+	GlobalRPS   float64       `mapstructure:"globalRPS"`
+	GlobalBurst int           `mapstructure:"globalBurst"`
+	AuthRPS     float64       `mapstructure:"authRPS"`
+	AuthBurst   int           `mapstructure:"authBurst"`
+	IdleTTL     time.Duration `mapstructure:"idleTTL"`
+	MaxKeys     int           `mapstructure:"maxKeys"`
 }
 
 func (c *Config) IsProduction() bool { return c.Env == "production" }

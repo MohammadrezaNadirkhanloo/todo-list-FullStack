@@ -4,7 +4,7 @@ import "github.com/spf13/viper"
 
 func setDefaults(v *viper.Viper) {
 	v.SetDefault("env", "development")
- 
+
 	v.SetDefault("server.port", "8080")
 	v.SetDefault("server.runMode", "debug")
 	v.SetDefault("server.apiBasePath", "/api/v1")
@@ -17,7 +17,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("server.maxBodyBytes", 1048576)
 	v.SetDefault("server.insecureCookies", true)
 	v.SetDefault("server.trustedProxies", []string{})
- 
+
 	v.SetDefault("postgres.host", "localhost")
 	v.SetDefault("postgres.port", "5432")
 	v.SetDefault("postgres.user", "postgres")
@@ -29,7 +29,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("postgres.connMaxLifetime", "30m")
 	v.SetDefault("postgres.connMaxIdleTime", "5m")
 	v.SetDefault("postgres.slowQueryThreshold", "200ms")
- 
+
 	v.SetDefault("redis.host", "localhost")
 	v.SetDefault("redis.port", "6379")
 	v.SetDefault("redis.db", 0)
@@ -38,14 +38,14 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("redis.writeTimeout", "3s")
 	v.SetDefault("redis.poolSize", 10)
 	v.SetDefault("redis.minIdleConns", 2)
- 
+
 	v.SetDefault("jwt.accessTTL", "15m")
 	v.SetDefault("jwt.refreshTTL", "168h")
 	v.SetDefault("jwt.issuer", "todo-api")
 	v.SetDefault("jwt.audience", "todo-api")
- 
+
 	v.SetDefault("authz.enforce", true)
- 
+
 	v.SetDefault("password.minLength", 12)
 	v.SetDefault("password.maxLength", 128)
 	v.SetDefault("password.includeDigits", true)
@@ -55,11 +55,24 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("password.argon2Memory", 65536)
 	v.SetDefault("password.argon2Iterations", 3)
 	v.SetDefault("password.argon2Parallelism", 2)
- 
+
 	v.SetDefault("pagination.defaultPageSize", 20)
 	v.SetDefault("pagination.maxPageSize", 100)
+
+	v.SetDefault("cors.allowOrigins", []string{})
+	v.SetDefault("cors.allowCredentials", false)
+	v.SetDefault("cors.maxAge", "6h")
+
+	v.SetDefault("csrf.enabled", true)
+
+	v.SetDefault("ratelimit.enabled", true)
+	v.SetDefault("ratelimit.globalRPS", 20)
+	v.SetDefault("ratelimit.globalBurst", 40)
+	v.SetDefault("ratelimit.authRPS", 0.2)
+	v.SetDefault("ratelimit.authBurst", 5)
+	v.SetDefault("ratelimit.idleTTL", "15m")
+	v.SetDefault("ratelimit.maxKeys", 100000)
 }
- 
 
 var secretKeys = []string{
 	"postgres.password",

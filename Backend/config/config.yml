@@ -1,6 +1,7 @@
 env: development
 
 server:
+  domain: localhost
   port: "8080"
   runMode: debug
   readTimeout: 10s
@@ -32,16 +33,17 @@ redis:
   writeTimeout: 3s
   poolSize: 10
   minIdleConns: 2
- 
+
 jwt:
   accessTTL: 15m
   refreshTTL: 168h
   issuer: todo-api
   audience: todo-api
- 
+
 authz:
   enforce: true
- 
+  mode: roles
+
 password:
   minLength: 12
   maxLength: 128
@@ -52,7 +54,26 @@ password:
   argon2Memory: 65536
   argon2Iterations: 3
   argon2Parallelism: 2
- 
+
 pagination:
   defaultPageSize: 20
   maxPageSize: 100
+
+  cors:
+  allowOrigins:
+    - http://localhost:3000
+    - http://localhost:5173
+  allowCredentials: true
+  maxAge: 6h
+
+csrf:
+  enabled: true
+
+ratelimit:
+  enabled: true
+  globalRPS: 20
+  globalBurst: 40
+  authRPS: 0.2
+  authBurst: 5
+  idleTTL: 15m
+  maxKeys: 100000

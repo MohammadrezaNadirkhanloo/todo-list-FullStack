@@ -27,6 +27,7 @@ var RoleRules = map[string][]Rule{
 		Allow(ActionRead, SubjectDashboard),
 		Allow(ActionRead, SubjectCategory),
 		Allow(ActionRead, SubjectProduct),
+		Allow(ActionManage, SubjectTodo),
 	},
 
 	RoleGuest: {

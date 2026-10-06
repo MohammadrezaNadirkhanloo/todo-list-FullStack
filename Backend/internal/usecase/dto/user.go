@@ -22,7 +22,7 @@ type UserOutput struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-func ToUserOutput(m model.UserModel) UserOutput {
+func ToUserOutput(m model.User) UserOutput {
 	return UserOutput{
 		ID:        m.ID,
 		Username:  m.Username,

@@ -27,3 +27,11 @@ var UserSpec = filter.NewSpec("id desc",
 	filter.Text("username", "username").Search(),
 	filter.DateTime("createdAt", "created_at"),
 )
+
+var PermissionProfileSpec = filter.NewSpec("id asc",
+	filter.Number("id", "id"),
+	filter.Text("name", "name").Search(),
+	filter.Text("description", "description").Search().NoSort(),
+	filter.Bool("enabled", "enabled"),
+	filter.DateTime("createdAt", "created_at"),
+)

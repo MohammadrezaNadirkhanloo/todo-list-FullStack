@@ -46,11 +46,12 @@ func (u *UserUsecase) Register(ctx context.Context, in dto.RegisterInput) (dto.U
 		return zero, apperror.Internal(err)
 	}
 
-	user := model.UserModel{
+	user := model.User{
 		Username:     username,
 		PasswordHash: hash,
+		Enabled:      true, // ← پیشنهاد می‌کنم این خط رو هم اضافه کنی
 	}
-	if err := u.users.Create(ctx, &user); err != nil {
+	if err := u.users.Create(ctx, &user, []string{model.RoleUser}); err != nil {
 		return zero, err
 	}
 	return dto.ToUserOutput(user), nil
@@ -91,7 +92,7 @@ func (u *UserUsecase) Profile(ctx context.Context, userID int64) (dto.UserOutput
 	return dto.ToUserOutput(user), nil
 }
 
-func (u *UserUsecase) Find(ctx context.Context, userID int64) (model.UserModel, error) {
+func (u *UserUsecase) Find(ctx context.Context, userID int64) (model.User, error) {
 	return u.users.GetByID(ctx, userID)
 }
 
