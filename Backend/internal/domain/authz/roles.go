@@ -1,19 +1,13 @@
 package authz
 
 const (
-	SubjectDashboard = "Dashboard"
-	SubjectCategory  = "Category"
-	SubjectProduct   = "Product"
-	SubjectTodo      = "Todo"
-	SubjectUsers     = "Users"
-	SubjectRoles     = "Roles"
-	SubjectSettings  = "Settings"
+	SubjectTodo     = "Todo"
+	SubjectSettings = "Settings"
 )
 
 const (
 	RoleAdmin = "admin"
 	RoleUser  = "user"
-
 	RoleGuest = "guest"
 )
 
@@ -24,16 +18,10 @@ var RoleRules = map[string][]Rule{
 	},
 
 	RoleUser: {
-		Allow(ActionRead, SubjectDashboard),
-		Allow(ActionRead, SubjectCategory),
-		Allow(ActionRead, SubjectProduct),
 		Allow(ActionManage, SubjectTodo),
 	},
 
-	RoleGuest: {
-		Allow(ActionRead, SubjectCategory),
-		Allow(ActionRead, SubjectProduct),
-	},
+	RoleGuest: {},
 }
 
 func RulesForRoles(roles []string) []Rule {

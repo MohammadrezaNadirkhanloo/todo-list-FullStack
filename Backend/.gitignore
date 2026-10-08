@@ -17,7 +17,6 @@ coverage.*
 profile.cov
 
 # ─────────────── Go ───────────────
-# vendor/
 go.work
 go.work.sum
 

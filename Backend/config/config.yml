@@ -59,7 +59,7 @@ pagination:
   defaultPageSize: 20
   maxPageSize: 100
 
-  cors:
+cors:
   allowOrigins:
     - http://localhost:3000
     - http://localhost:5173

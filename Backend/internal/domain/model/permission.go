@@ -9,7 +9,7 @@ type PermissionProfile struct {
 	Enabled bool `gorm:"not null;default:true" json:"enabled"`
 
 	Rules []PermissionRule `gorm:"foreignKey:ProfileID" json:"rules,omitempty"`
-	Users []User          `gorm:"many2many:user_permission_profiles;" json:"-"`
+	Users []User           `gorm:"many2many:user_permission_profiles;" json:"-"`
 }
 
 type PermissionRule struct {

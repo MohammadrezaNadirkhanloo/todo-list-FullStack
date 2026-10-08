@@ -21,7 +21,6 @@ type Container struct {
 	DB     *database.DB
 	Cache  *cache.Client
 	Server *api.Server
-
 	limiters *middleware.RateLimiters
 }
 
