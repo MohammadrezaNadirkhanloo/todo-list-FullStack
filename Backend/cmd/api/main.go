@@ -34,16 +34,18 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("Error loading configuration (config) : %w", err)
 	}
+
 	app, err := bootstrap.New(ctx, cfg, version)
 	if err != nil {
 		return err
 	}
 
-	//  defer func() {
-	//     if cerr := app.Close(context.Background()); cerr != nil {
-	//         fmt.Fprintf(os.Stderr, "Error closing resources (bootstrap): %v\n", cerr)
-	//     }
-	// }()
+	defer func() {
+		if cerr := app.Close(context.Background()); cerr != nil {
+			fmt.Fprintf(os.Stderr, "Error closing resources (bootstrap): %v\n", cerr)
+		}
+	}()
+	
 	if err := app.Server.Start(ctx); err != nil && !errors.Is(err, context.Canceled) {
 		return err
 	}

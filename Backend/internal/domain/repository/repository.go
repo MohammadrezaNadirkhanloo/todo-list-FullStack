@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/MohammadrezaNadirkhanloo/internal/domain/authz"
 	"github.com/MohammadrezaNadirkhanloo/internal/domain/filter"
 	"github.com/MohammadrezaNadirkhanloo/internal/domain/model"
 )
@@ -36,7 +37,7 @@ type TodoRepository interface {
 type UserRepository interface {
 	Reader[model.User]
 
-	Create(ctx context.Context, user *model.User) error
+	Create(ctx context.Context, user *model.User, roleNames []string) error
 
 	FindByUsername(ctx context.Context, username string) (model.User, error)
 
@@ -51,4 +52,14 @@ type TokenStore interface {
 	Consume(ctx context.Context, tokenHash string) (userID int64, ok bool, err error)
 
 	RevokeAll(ctx context.Context, userID int64) error
+}
+
+type PermissionRepository interface {
+	CRUD[model.PermissionProfile]
+
+	RulesForUser(ctx context.Context, userID int64) ([]model.PermissionRule, error)
+
+	FindByName(ctx context.Context, name string) (model.PermissionProfile, error)
+	AssignToUser(ctx context.Context, userID, profileID int64) error
+	RevokeFromUser(ctx context.Context, userID, profileID int64) error
 }

@@ -1,18 +1,18 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/MohammadrezaNadirkhanloo/internal/usecase"
+	"github.com/MohammadrezaNadirkhanloo/internal/usecase/dto"
+)
 
-type Todo struct{}
-
-func NewTodo() *Todo{
-	return &Todo{}
+type TodoHandler struct {
+	*CRUD[dto.CreateTodoInput, dto.UpdateTodoInput, dto.TodoOutput]
 }
 
-//read
+var _ CRUDUsecase[dto.CreateTodoInput, dto.UpdateTodoInput, dto.TodoOutput] = (*usecase.TodoUsecase)(nil)
 
-//create
-func (t *Todo)CreatTodo(c *gin.Context){}
-
-//update
-
-//delete
+func NewTodoHandler(uc *usecase.TodoUsecase) *TodoHandler {
+	return &TodoHandler{
+		CRUD: NewCRUD(uc, "/todos", ListSimple),
+	}
+}

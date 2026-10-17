@@ -29,3 +29,10 @@ func ToUserOutput(m model.User) UserOutput {
 		CreatedAt: m.CreatedAt,
 	}
 }
+
+type TokenPair struct {
+	AccessToken   string    `json:"-"`
+	AccessTokenID string    `json:"-"`
+	RefreshToken  string    `json:"-"`
+	ExpiresAt     time.Time `json:"expiresAt"`
+}

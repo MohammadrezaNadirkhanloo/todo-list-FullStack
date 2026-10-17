@@ -9,7 +9,7 @@ import (
 )
 
 type BaseModel struct {
-	ID int64 `gorm:"primaryKey"`
+	ID        int64          `gorm:"primaryKey"`
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt sql.NullTime   `gorm:""`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
@@ -40,4 +40,3 @@ func actorFrom(tx *gorm.DB) sql.NullInt64 {
 	}
 	return sql.NullInt64{Int64: id, Valid: true}
 }
-
