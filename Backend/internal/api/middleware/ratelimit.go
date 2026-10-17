@@ -13,7 +13,7 @@ import (
 type RateLimiters struct {
 	Global *ratelimit.KeyLimiter
 	Auth   *ratelimit.KeyLimiter
-	Otp    *ratelimit.KeyLimiter
+	// Otp    *ratelimit.KeyLimiter
 
 	enabled bool
 }
@@ -39,7 +39,7 @@ func NewRateLimiters(cfg config.RateLimitConfig) *RateLimiters {
 func (r *RateLimiters) Close() {
 	r.Global.Close()
 	r.Auth.Close()
-	r.Otp.Close()
+	// r.Otp.Close()
 }
 
 func (r *RateLimiters) Limit(limiter *ratelimit.KeyLimiter) gin.HandlerFunc {

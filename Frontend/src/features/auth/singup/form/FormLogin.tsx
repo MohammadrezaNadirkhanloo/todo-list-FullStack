@@ -9,11 +9,11 @@ import type { LoginFormData } from "./auth.schema";
 import { useLoginForm } from "./useLoginForm";
 
 export function SingUpForm() {
-  const { LoginUsers, isLoadingSend } = useCreateUsers();
+  const { CreatUsers, isLoadingSend } = useCreateUsers();
   const form = useLoginForm();
 
   function onSubmit(data: LoginFormData) {
-    LoginUsers(data);
+    CreatUsers(data);
   }
 
   return (

@@ -1,7 +1,7 @@
+import { useToast } from "@/hooks/useToast";
 import { api } from "@/services/httpService";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useSearchParams } from "react-router";
-import { useToast } from "@/hooks/useToast";
+import { useNavigate } from "react-router";
 
 
 interface LoginResponse {
@@ -20,10 +20,9 @@ export function useCreateUsers() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: postLoginUsers,
-    onSuccess: async (data) => {
-      localStorage.setItem("token", data.token);
+    onSuccess: async () => {
       toast.success("toast.success.login");
-      navigate("");
+      navigate("/todo-list");
     },
   });
 

@@ -2,7 +2,7 @@ import { showToast } from "@/utils/toast";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ??"localhost:5005",
+  baseURL: import.meta.env.VITE_API_BASE_URL ??"localhost:8080",
   withCredentials: true,
   timeout: 30_000,
   headers: {
