@@ -73,38 +73,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	response.OK(c, pair)
 }
 
-// func (h *AuthHandler) SendOtp(c *gin.Context) {
-// 	var in dto.SendOtpInput
-// 	if !BindJSON(c, &in) {
-// 		return
-// 	}
-
-// 	if err := h.users.SendOtp(c.Request.Context(), in); err != nil {
-// 		response.Fail(c, err)
-// 		return
-// 	}
-
-// 	response.OK(c, gin.H{"message": "if the number is valid, a code has been sent."})
-// }
-
-// func (h *AuthHandler) LoginByOtp(c *gin.Context) {
-// 	var in dto.VerifyOtpInput
-// 	if !BindJSON(c, &in) {
-// 		return
-// 	}
-
-// 	pair, err := h.users.LoginByOtp(c.Request.Context(), in)
-// 	if err != nil {
-// 		response.Fail(c, err)
-// 		return
-// 	}
-
-// 	if err := h.setAuthCookies(c, pair); err != nil {
-// 		response.Fail(c, err)
-// 		return
-// 	}
-// 	response.OK(c, pair)
-// }
 
 func (h *AuthHandler) Refresh(c *gin.Context) {
 	refreshToken, err := middleware.SingleCookie(c.Request, RefreshCookieName)

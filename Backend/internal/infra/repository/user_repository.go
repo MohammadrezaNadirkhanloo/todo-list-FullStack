@@ -21,7 +21,7 @@ func NewUserRepository(db *database.DB) repository.UserRepository {
 		BaseRepository: NewBaseRepository[model.User](db, Options{
 			Entity:   "User",
 			Spec:     model.UserSpec,
-			Preloads: []string{"Roles"}, // ← این خط رو اضافه کنید
+			Preloads: []string{"Roles"},
 		}),
 	}
 }

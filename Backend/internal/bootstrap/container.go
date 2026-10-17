@@ -17,10 +17,10 @@ import (
 )
 
 type Container struct {
-	Config *config.Config
-	DB     *database.DB
-	Cache  *cache.Client
-	Server *api.Server
+	Config   *config.Config
+	DB       *database.DB
+	Cache    *cache.Client
+	Server   *api.Server
 	limiters *middleware.RateLimiters
 }
 
@@ -75,7 +75,7 @@ func New(ctx context.Context, cfg *config.Config, version string) (*Container, e
 	permissionRepo := repository.NewPermissionRepository(db)
 
 	tokenUC := usecase.NewTokenUsecase(tokenManager, tokenStore, userRepo, cfg.JWT)
-	todoUC := usecase.NewTodoUsecase(todoRepo, cfg.Pagination)
+	todoUC := usecase.NewTodoUsecase(todoRepo, cfg.Pagination, cfg.Authz)
 	authzUC := usecase.NewAuthzUsecase(permissionRepo, cfg.Authz)
 	userUC := usecase.NewUserUsecase(userRepo, tokenUC, hasher)
 

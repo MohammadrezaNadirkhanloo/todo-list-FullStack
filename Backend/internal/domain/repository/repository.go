@@ -57,7 +57,6 @@ type TokenStore interface {
 type PermissionRepository interface {
 	CRUD[model.PermissionProfile]
 
-	// قانون اجازه‌ای بیاید که override می‌کند.
 	RulesForUser(ctx context.Context, userID int64) ([]model.PermissionRule, error)
 
 	FindByName(ctx context.Context, name string) (model.PermissionProfile, error)

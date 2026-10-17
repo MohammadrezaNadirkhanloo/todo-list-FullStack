@@ -21,6 +21,7 @@ type TodoUsecase struct {
 func NewTodoUsecase(
 	repo repository.TodoRepository,
 	pageCfg config.PaginationConfig,
+	authzCfg config.AuthzConfig,
 ) *TodoUsecase {
 	base := NewBaseUsecase(
 		repository.CRUD[model.Todo](repo),
@@ -38,7 +39,7 @@ func NewTodoUsecase(
 		ToResource: func(t model.Todo) authz.Resource {
 			return authz.Resource{"userId": t.UserID}
 		},
-	}, true)
+	}, authzCfg.Enforce)
 
 	return &TodoUsecase{BaseUsecase: base, repo: repo}
 }

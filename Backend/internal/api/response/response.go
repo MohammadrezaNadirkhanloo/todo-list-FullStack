@@ -78,7 +78,6 @@ func Fail(c *gin.Context, err error) {
 		Message: message,
 	}
 
-	//Validation
 	var fieldErrors []FieldError
 	if fe, ok := err.(interface{ Fields() []FieldError }); ok {
 		fieldErrors = fe.Fields()
@@ -90,7 +89,6 @@ func Fail(c *gin.Context, err error) {
 		Message: message,
 		Error:   body,
 	})
-	//return
 }
 
 // json error
@@ -105,10 +103,3 @@ func FailValidation(c *gin.Context, message string, fields []FieldError) {
 		},
 	})
 }
-
-// func requestID(c *gin.Context) string {
-// 	if id, ok := appctx.RequestID(c.Request.Context()); ok {
-// 		return id
-// 	}
-// 	return ""
-// }
