@@ -2,7 +2,7 @@ import { showToast } from "@/utils/toast";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ??"localhost:8080",
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "localhost:8080",
   withCredentials: true,
   timeout: 30_000,
   headers: {
@@ -16,7 +16,6 @@ export const api = axios.create({
 //   if (locale) config.headers.set("Accept-Language", locale);
 //   return config;
 // });
-
 
 api.interceptors.request.use(
   (config) => {
@@ -35,9 +34,6 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // const lang = localStorage.getItem("Language") || "fa";
-    // const isFa = lang === "fa";
-
     if (!error.response) {
       showToast.error({
         message: "Network Error",
@@ -58,13 +54,12 @@ api.interceptors.response.use(
         break;
 
       case 401:
-        // useSessionStore.getState().clearSession();
-        // showToast.error({
-        //   message: isFa ? "نشست منقضی شده" : "Session expired",
-        //   description: isFa ? "لطفاً دوباره وارد شوید" : "Please login again",
-        // });
-        // const currentPath = window.location.pathname + window.location.search;
-        // window.location.href = `/auth?redirect=${encodeURIComponent(currentPath)}`;
+        showToast.error({
+          message: "Session expired",
+          description: "Please login again",
+        });
+
+        window.location.href = `/sign-in`;
         break;
 
       case 403:

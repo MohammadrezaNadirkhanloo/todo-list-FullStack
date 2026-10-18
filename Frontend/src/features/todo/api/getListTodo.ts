@@ -2,35 +2,33 @@ import { useState } from "react";
 
 import type { PaginationState } from "@tanstack/react-table";
 
-import type { SortItem } from "@/components/data-table";
+// import { DEFAULT_PAGE_SIZE } from "@/components/data-table/build-columns";
 import { useTableQuery } from "@/hooks/useTableQuery";
-import type { AccessRole } from "../types";
-import { DEFAULT_PAGE_SIZE } from "@/components/data-table/build-columns";
 
 
 
 
-export function useAccessRoleTable() {
+export function useListTodos() {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: DEFAULT_PAGE_SIZE,
+    pageSize: 20,
   });
-  const [sorts, setSorts] = useState<SortItem[]>([]);
+  const [sorts, setSorts] = useState([]);
   const [search, setSearch] = useState("");
 
   const primarySort = sorts[0];
 
-  const query = useTableQuery<AccessRole>({
-    endpoint: "/acl/roles",
+  const query = useTableQuery({
+    endpoint: "todos",
     page: pagination.pageIndex + 1,
     perPage: pagination.pageSize,
     filter: search,
-    orderBy: primarySort?.column ,
-    orderDirection: primarySort?.direction ?? "",
+    // orderBy: primarySort?.column ,
+    // orderDirection: primarySort?.direction ?? "",
   });
 
   return {
-    AccessRole: query.data,
+    Todos: query.data,
     rowCount: query.total,
     pageCount: query.totalPages,
     isLoading: query.isLoading,

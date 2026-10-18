@@ -1,6 +1,5 @@
 import { api } from "@/services/httpService";
 import { useQuery } from "@tanstack/react-query";
-import type { AccessRole } from "../types";
 
 export const getAccessRole = async (id: number | string) => {
   const response = await api.get<AccessRole>(`acl/roles/${id}`);

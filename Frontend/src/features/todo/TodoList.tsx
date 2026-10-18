@@ -45,6 +45,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { useGetListTodos } from "./api/gettodos";
 
 interface Task {
   id: number;
@@ -410,9 +411,11 @@ const TodoList: React.FC = () => {
     return matchesSearch && matchesCategory && matchesPriority;
   });
 
+  const { ListTodos, isFetching, isLoading } = useGetListTodos();
+  console.log(ListTodos);
+
   return (
     <div className="p-6">
-      
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
