@@ -17,7 +17,7 @@ import {
 } from "react-hook-form";
 
 interface SelectOption {
-  value: string;
+  value: string | null;
   label: string;
   disabled?: boolean;
   status?: string;

@@ -1,26 +1,25 @@
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/services/httpService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AccessRoleFormData } from "../form/accessRole.schema";
 
-export const postCreatAccessRole = async (data: AccessRoleFormData) => {
-  const response = await api.post("acl/roles", data);
+export const postCreatTodo = async (data: any) => {
+  const response = await api.post("todos", data);
   return response.data;
 };
 
-export function useCreateAccessRole() {
+export function useCreateTodo() {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: postCreatAccessRole,
+    mutationFn: postCreatTodo,
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["table-query", "/acl/roles"] });
+      queryClient.refetchQueries({ queryKey: ["list-todo"] });
       toast.success("toast.success.creat");
     },
   });
 
   return {
-    CreatAccessRole: mutate,
+    CreatTodo: mutate,
     isLoadingSend: isPending,
   };
 }

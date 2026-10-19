@@ -46,13 +46,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useGetListTodos } from "./api/gettodos";
+import { TodoForm } from "./form/FormTodo";
 
 interface Task {
   id: number;
   text: string;
   completed: boolean;
   dueDate?: Date;
-  dueTime?: string;
+  createdAt?: string;
   createdAt: Date;
   category?: string;
   priority: "low" | "medium" | "high";
@@ -122,7 +123,7 @@ const SortableTaskItem = ({
       ref={setNodeRef}
       style={style}
       className={`transition-all duration-200 hover:shadow-md ${
-        task.completed ? "opacity-60" : ""
+        task.done ? "opacity-60" : ""
       } ${isOverdue(task) ? "border-red-500 bg-red-50" : ""}`}
     >
       <CardContent className="p-4">
@@ -134,7 +135,7 @@ const SortableTaskItem = ({
               onClick={() => onToggle(task.id)}
               className="flex-shrink-0"
             >
-              {task.completed ? (
+              {task.done ? (
                 <CheckCircle className="h-5 w-5 text-green-600" />
               ) : (
                 <Circle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -144,9 +145,9 @@ const SortableTaskItem = ({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <p
-                  className={`text-sm font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}
+                  className={`text-sm font-medium ${task.done ? "line-through text-muted-foreground" : ""}`}
                 >
-                  {task.text}
+                  {task.title}
                 </p>
                 <span
                   className={`px-2 py-1 text-xs rounded-full border ${PRIORITY_COLORS[task.priority]}`}
@@ -174,7 +175,7 @@ const SortableTaskItem = ({
                 </div>
               )}
 
-              {task.dueDate && (
+              {task.createdAt && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3" />
                   <span
@@ -289,7 +290,7 @@ const TodoList: React.FC = () => {
         .map((tag) => tag.trim())
         .filter((tag) => tag.length > 0),
       ...(newTaskDate && { dueDate: new Date(newTaskDate) }),
-      ...(newTaskTime && { dueTime: newTaskTime }),
+      ...(newTaskTime && { createdAt: newTaskTime }),
     };
 
     setTasks([...tasks, newTaskObj]);
@@ -304,7 +305,7 @@ const TodoList: React.FC = () => {
   const toggleTask = (taskId: number) => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === taskId) {
-        return { ...task, completed: !task.completed };
+        return { ...task, done: !task.done };
       }
       return task;
     });
@@ -319,7 +320,7 @@ const TodoList: React.FC = () => {
     setEditingTask(task);
     setEditText(task.text);
     setEditDate(task.dueDate ? format(task.dueDate, "yyyy-MM-dd") : "");
-    setEditTime(task.dueTime || "");
+    setEditTime(task.createdAt || "");
     setEditCategory(task.category || "");
     setEditPriority(task.priority);
     setEditTags(task.tags.join(", "));
@@ -335,7 +336,7 @@ const TodoList: React.FC = () => {
           ...task,
           text: editText.trim(),
           dueDate: editDate ? new Date(editDate) : undefined,
-          dueTime: editTime || undefined,
+          createdAt: editTime || undefined,
           category: editCategory || undefined,
           priority: editPriority,
           tags: editTags
@@ -378,22 +379,22 @@ const TodoList: React.FC = () => {
   };
 
   const formatDueDate = (task: Task) => {
-    if (!task.dueDate) return null;
+    if (!task.createdAt) return null;
 
-    const dateStr = format(task.dueDate, "MMM dd, yyyy");
-    const timeStr = task.dueTime ? ` at ${task.dueTime}` : "";
+    const dateStr = format(task.createdAt, "MMM dd, yyyy");
+    const timeStr = task.createdAt ? ` at ${task.createdAt}` : "";
     return `${dateStr}${timeStr}`;
   };
 
   const isOverdue = (task: Task) => {
-    if (!task.dueDate) return false;
+    if (!task.createdAt) return false;
     const now = new Date();
-    const dueDate = new Date(task.dueDate);
-    if (task.dueTime) {
-      const [hours, minutes] = task.dueTime.split(":");
+    const dueDate = new Date(task.createdAt);
+    if (task.createdAt) {
+      const [hours, minutes] = task.createdAt.split(":");
       dueDate.setHours(parseInt(hours), parseInt(minutes));
     }
-    return !task.completed && dueDate < now;
+    return !task.done && dueDate < now;
   };
 
   // Filter tasks based on search and filters
@@ -423,71 +424,7 @@ const TodoList: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4 mb-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <Input
-                  type="text"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Write a new task..."
-                  className="mb-2"
-                />
-                <div className="flex gap-2 mb-2">
-                  <Input
-                    type="date"
-                    value={newTaskDate}
-                    onChange={(e) => setNewTaskDate(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    type="time"
-                    value={newTaskTime}
-                    onChange={(e) => setNewTaskTime(e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-                <div className="flex gap-2 mb-2">
-                  <select
-                    value={newTaskCategory}
-                    onChange={(e) => setNewTaskCategory(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
-                  >
-                    <option value="">Select Category</option>
-                    {CATEGORIES.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    value={newTaskPriority}
-                    onChange={(e) =>
-                      setNewTaskPriority(
-                        e.target.value as "low" | "medium" | "high",
-                      )
-                    }
-                    className="flex-1 px-3 py-2 border border-input bg-background rounded-md text-sm"
-                  >
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
-                  </select>
-                </div>
-                <Input
-                  type="text"
-                  value={newTaskTags}
-                  onChange={(e) => setNewTaskTags(e.target.value)}
-                  placeholder="Tags (comma separated)"
-                  className="mb-2"
-                />
-              </div>
-              <Button onClick={addTask} className="sm:w-auto">
-                Add Task
-              </Button>
-            </div>
-          </div>
+          <TodoForm />
         </CardContent>
       </Card>
 
@@ -532,7 +469,7 @@ const TodoList: React.FC = () => {
       </Card>
 
       <div className="space-y-3">
-        {filteredTasks.length === 0 ? (
+        {ListTodos?.data.length === 0 || isFetching || isLoading ? (
           <Card>
             <CardContent className="pt-6">
               <p className="text-center text-muted-foreground italic">
@@ -549,11 +486,11 @@ const TodoList: React.FC = () => {
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={filteredTasks.map((task) => task.id)}
+              items={ListTodos?.data.map((task) => task.id)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-3">
-                {filteredTasks.map((task) => (
+                {ListTodos?.data.map((task) => (
                   <SortableTaskItem
                     key={task.id}
                     task={task}

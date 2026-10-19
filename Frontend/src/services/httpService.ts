@@ -1,8 +1,9 @@
+import { router } from "@/routes";
 import { showToast } from "@/utils/toast";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "localhost:8080",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   timeout: 30_000,
   headers: {
@@ -11,18 +12,22 @@ export const api = axios.create({
   },
 });
 
-// api.interceptors.request.use((config) => {
-//   const locale = document.documentElement.lang;
-//   if (locale) config.headers.set("Accept-Language", locale);
-//   return config;
-// });
+
+const getCookie = (name: string): string | null => {
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${name.replace(/([.$?*|{}()[\]\\/+^])/g, "\\$1")}=([^;]*)`),
+  );
+  return match ? decodeURIComponent(match[1]) : null;
+};
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const csrfToken = getCookie("csrf_token");
+
+    if (csrfToken) {
+      config.headers["X-CSRF-Token"] = csrfToken;
     }
+
     return config;
   },
   (error) => {
@@ -41,6 +46,7 @@ api.interceptors.response.use(
       });
       return Promise.reject(error);
     }
+    
 
     const status = error.response?.status;
     const serverMessage = error.response?.data?.message;
@@ -56,16 +62,17 @@ api.interceptors.response.use(
       case 401:
         showToast.error({
           message: "Session expired",
-          description: "Please login again",
+          description: serverMessage || "Please login again",
         });
 
-        window.location.href = `/sign-in`;
+        router.navigate("/sign-in");
         break;
 
       case 403:
         showToast.error({
           message: "Forbidden",
-          description: "You are not allowed to perform this action",
+          description:
+            serverMessage || "You are not allowed to perform this action",
         });
         break;
 
@@ -93,7 +100,7 @@ api.interceptors.response.use(
       case 500:
       case 502:
       case 503:
-        window.location.href = "/500";
+        // window.location.href = "/500";
         showToast.error({
           message: "Server Error",
           description: "A server error occurred. Please try again later",

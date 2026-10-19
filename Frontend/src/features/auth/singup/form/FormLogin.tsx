@@ -13,6 +13,8 @@ export function SingUpForm() {
   const form = useLoginForm();
 
   function onSubmit(data: LoginFormData) {
+    console.log(data);
+    
     CreatUsers(data);
   }
 

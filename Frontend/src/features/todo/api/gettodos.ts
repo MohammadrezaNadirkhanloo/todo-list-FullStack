@@ -2,7 +2,7 @@ import { api } from "@/services/httpService";
 import { useQuery } from "@tanstack/react-query";
 
 export const getListTodos = async () => {
-  const response = await api.get("/todos/asdasd");
+  const response = await api.get("/todos");
   return response.data;
 };
 
