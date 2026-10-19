@@ -1,3 +1,4 @@
+
 # ==============================================================================
 # Configuration
 # ==============================================================================
@@ -8,20 +9,19 @@ export
 .DEFAULT_GOAL := help
 SHELL := /bin/sh
 
-APP_NAME    := todo
-MAIN_PKG    := ./cmd/api
-MIGRATE_DSN ?= postgres://$(APP_POSTGRES_USER):$(APP_POSTGRES_PASSWORD)@localhost:5432/$(APP_POSTGRES_DBNAME)?sslmode=disable
+APP_NAME := todo
+MAIN_PKG := ./cmd/api
+COMPOSE ?= docker compose
 
+MIGRATE_DSN ?= postgres://$(APP_POSTGRES_USER):$(APP_POSTGRES_PASSWORD)@localhost:5432/$(APP_POSTGRES_DBNAME)?sslmode=disable
 
 # ==============================================================================
 # Help
 # ==============================================================================
 
 .PHONY: help
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
-
+help: ## Show available commands
+	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # ==============================================================================
 # Development
@@ -34,7 +34,6 @@ run: ## Run dev server
 .PHONY: tidy
 tidy: ## Run go mod tidy
 	go mod tidy
-
 
 # ==============================================================================
 # Database Migrations
@@ -51,15 +50,14 @@ migrate-down: ## Roll back the last migration
 .PHONY: migrate-create
 migrate-create: ## Create a new migration (usage: make migrate-create name=add_orders)
 	@test -n "$(name)" || { echo "Usage: make migrate-create name=add_orders"; exit 1; }
-	migrate create -ext sql -dir migrations -seq $(name)
+	migrate create -ext sql -dir migrations -seq "$(name)"
 
 .PHONY: migrate-version
 migrate-version: ## Show current migration version
 	migrate -path migrations -database "$(MIGRATE_DSN)" version
 
-
 # ==============================================================================
-# Docker 
+# Docker
 # ==============================================================================
 
 .PHONY: up
@@ -71,7 +69,7 @@ down: ## Stop the stack
 	$(COMPOSE) down
 
 .PHONY: down-clean
-down-clean: ## Stop the stack and remove data (⚠️ data will be deleted)
+down-clean: ## Stop the stack and remove data (WARNING: data will be deleted)
 	$(COMPOSE) down -v
 
 .PHONY: logs
