@@ -1,419 +1,100 @@
-import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import type { DragEndEvent } from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { format } from "date-fns";
-import {
-  Calendar,
-  CheckCircle,
-  Circle,
-  Edit,
-  GripVertical,
-  MoreHorizontal,
-  Search,
-  Tag,
-  Trash2,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+
+import { useDeleteTodo } from "./api/deletetodo";
 import { useGetListTodos } from "./api/gettodos";
+import { useUpdateTodo } from "./api/updatetodo";
+import { EditTaskDialog } from "./components/EditTaskDialog";
+import { TaskItem } from "./components/TaskItem";
+import { TodoFilters } from "./components/TodoFilters";
+import { DEFAULT_FILTERS } from "./constants";
 import { TodoForm } from "./form/FormTodo";
+import { useDebounce } from "./hooks/useDebounce";
+import type {
+  Task,
+  TodoFilters as Filters,
+  TodoListParams,
+  UpdateTaskInput,
+} from "./types";
 
-interface Task {
-  id: number;
-  text: string;
-  completed: boolean;
-  dueDate?: Date;
-  createdAt?: string;
-  createdAt: Date;
-  category?: string;
-  priority: "low" | "medium" | "high";
-  tags: string[];
-}
-
-// Shape of a task as it's stored in localStorage (dates are strings, not Date objects)
-interface StoredTask extends Omit<Task, "dueDate" | "createdAt"> {
-  dueDate?: string;
-  createdAt: string;
-}
-
-const PRIORITY_COLORS = {
-  low: "bg-blue-100 border-blue-200 text-blue-800",
-  medium: "bg-yellow-100 border-yellow-200 text-yellow-800",
-  high: "bg-red-100 border-red-200 text-red-800",
-};
-
-const PRIORITY_LABELS = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-};
-
-const CATEGORIES = [
-  "Work",
-  "Personal",
-  "Shopping",
-  "Health",
-  "Finance",
-  "Home",
-  "Other",
-];
-
-const SortableTaskItem = ({
-  task,
-  onToggle,
-  onEdit,
-  onDelete,
-  isOverdue,
-  formatDueDate,
-}: {
-  task: Task;
-  onToggle: (id: number) => void;
-  onEdit: (task: Task) => void;
-  onDelete: (id: number) => void;
-  isOverdue: (task: Task) => boolean;
-  formatDueDate: (task: Task) => string | null;
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      className={`transition-all duration-200 hover:shadow-md ${
-        task.done ? "opacity-60" : ""
-      } ${isOverdue(task) ? "border-red-500 bg-red-50" : ""}`}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 flex-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onToggle(task.id)}
-              className="flex-shrink-0"
-            >
-              {task.done ? (
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              ) : (
-                <Circle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-              )}
-            </Button>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <p
-                  className={`text-sm font-medium ${task.done ? "line-through text-muted-foreground" : ""}`}
-                >
-                  {task.title}
-                </p>
-                <span
-                  className={`px-2 py-1 text-xs rounded-full border ${PRIORITY_COLORS[task.priority]}`}
-                >
-                  {PRIORITY_LABELS[task.priority]}
-                </span>
-                {task.category && (
-                  <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">
-                    {task.category}
-                  </span>
-                )}
-              </div>
-
-              {task.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-1">
-                  {task.tags.map((tag, index) => (
-                    <span
-                      key={`${tag}-${index}`}
-                      className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1"
-                    >
-                      <Tag className="h-3 w-3" />
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {task.createdAt && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span
-                    className={
-                      isOverdue(task) ? "text-red-600 font-medium" : ""
-                    }
-                  >
-                    {formatDueDate(task)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              {...attributes}
-              {...listeners}
-              className="p-1 hover:bg-gray-100 rounded cursor-grab active:cursor-grabbing"
-            >
-              <GripVertical className="h-4 w-4 text-gray-400" />
-            </button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" />
-                }
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit(task)}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => onDelete(task.id)}
-                  className="text-red-600"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+const EmptyState = ({ message }: { message: string }) => (
+  <Card>
+    <CardContent className="pt-6">
+      <p className="text-center text-muted-foreground italic">{message}</p>
+    </CardContent>
+  </Card>
+);
 
 const TodoList: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    if (!savedTasks) return [];
-
-    return (JSON.parse(savedTasks) as StoredTask[]).map((task) => ({
-      ...task,
-      dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
-      createdAt: new Date(task.createdAt),
-    }));
-  });
-  const [newTask, setNewTask] = useState("");
-  const [newTaskDate, setNewTaskDate] = useState("");
-  const [newTaskTime, setNewTaskTime] = useState("");
-  const [newTaskCategory, setNewTaskCategory] = useState("");
-  const [newTaskPriority, setNewTaskPriority] = useState<
-    "low" | "medium" | "high"
-  >("medium");
-  const [newTaskTags, setNewTaskTags] = useState("");
+  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [editText, setEditText] = useState("");
-  const [editDate, setEditDate] = useState("");
-  const [editTime, setEditTime] = useState("");
-  const [editCategory, setEditCategory] = useState("");
-  const [editPriority, setEditPriority] = useState<"low" | "medium" | "high">(
-    "medium",
-  );
-  const [editTags, setEditTags] = useState("");
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
-  const [filterPriority, setFilterPriority] = useState("");
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
+  const debouncedSearch = useDebounce(filters.search);
+
+  const params = useMemo<TodoListParams>(
+    () => ({
+      search: debouncedSearch.trim() || undefined,
+      category: filters.category || undefined,
+      priority: filters.priority || undefined,
     }),
+    [debouncedSearch, filters.category, filters.priority],
   );
 
-  // Save tasks to localStorage whenever tasks change
-  useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+  const hasFilters = Boolean(
+    filters.search || filters.category || filters.priority,
+  );
 
-  const addTask = () => {
-    if (newTask.trim() === "") return;
+  const { ListTodos, isLoading, isFetching } = useGetListTodos(params);
+  const updateTodo = useUpdateTodo();
+  const deleteTodo = useDeleteTodo();
 
-    const newId =
-      tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
-    const newTaskObj: Task = {
-      id: newId,
-      text: newTask.trim(),
-      completed: false,
-      createdAt: new Date(),
-      priority: newTaskPriority,
-      category: newTaskCategory || undefined,
-      tags: newTaskTags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0),
-      ...(newTaskDate && { dueDate: new Date(newTaskDate) }),
-      ...(newTaskTime && { createdAt: newTaskTime }),
-    };
+  const tasks = useMemo(() => ListTodos?.data ?? [], [ListTodos?.data]);
 
-    setTasks([...tasks, newTaskObj]);
-    setNewTask("");
-    setNewTaskDate("");
-    setNewTaskTime("");
-    setNewTaskCategory("");
-    setNewTaskPriority("medium");
-    setNewTaskTags("");
-  };
+  const handleToggle = (task: Task) =>
+    updateTodo.mutate({ id: task.id, done: !task.done });
 
-  const toggleTask = (taskId: number) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === taskId) {
-        return { ...task, done: !task.done };
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
-  };
+  const handleDelete = (id: number) => deleteTodo.mutate(id);
 
-  const deleteTask = (taskId: number) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
-  };
+  const handleSave = (id: number, input: UpdateTaskInput) =>
+    updateTodo.mutate(
+      { id, ...input },
+      { onSuccess: () => setEditingTask(null) },
+    );
 
-  const openEditDialog = (task: Task) => {
-    setEditingTask(task);
-    setEditText(task.text);
-    setEditDate(task.dueDate ? format(task.dueDate, "yyyy-MM-dd") : "");
-    setEditTime(task.createdAt || "");
-    setEditCategory(task.category || "");
-    setEditPriority(task.priority);
-    setEditTags(task.tags.join(", "));
-    setIsEditDialogOpen(true);
-  };
+  const renderList = () => {
+    if (isLoading) return <EmptyState message="Loading tasks..." />;
 
-  const saveEdit = () => {
-    if (!editingTask || editText.trim() === "") return;
-
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === editingTask.id) {
-        return {
-          ...task,
-          text: editText.trim(),
-          dueDate: editDate ? new Date(editDate) : undefined,
-          createdAt: editTime || undefined,
-          category: editCategory || undefined,
-          priority: editPriority,
-          tags: editTags
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter((tag) => tag.length > 0),
-        };
-      }
-      return task;
-    });
-
-    setTasks(updatedTasks);
-    setIsEditDialogOpen(false);
-    setEditingTask(null);
-    setEditText("");
-    setEditDate("");
-    setEditTime("");
-    setEditCategory("");
-    setEditPriority("medium");
-    setEditTags("");
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      setTasks((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over?.id);
-
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      addTask();
-    }
-  };
-
-  const formatDueDate = (task: Task) => {
-    if (!task.createdAt) return null;
-
-    const dateStr = format(task.createdAt, "MMM dd, yyyy");
-    const timeStr = task.createdAt ? ` at ${task.createdAt}` : "";
-    return `${dateStr}${timeStr}`;
-  };
-
-  const isOverdue = (task: Task) => {
-    if (!task.createdAt) return false;
-    const now = new Date();
-    const dueDate = new Date(task.createdAt);
-    if (task.createdAt) {
-      const [hours, minutes] = task.createdAt.split(":");
-      dueDate.setHours(parseInt(hours), parseInt(minutes));
-    }
-    return !task.done && dueDate < now;
-  };
-
-  // Filter tasks based on search and filters
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase()),
+    if (tasks.length === 0) {
+      return (
+        <EmptyState
+          message={
+            hasFilters
+              ? "No tasks match your search criteria."
+              : "No tasks yet. Add a new task to get started!"
+          }
+        />
       );
+    }
 
-    const matchesCategory = !filterCategory || task.category === filterCategory;
-    const matchesPriority = !filterPriority || task.priority === filterPriority;
-
-    return matchesSearch && matchesCategory && matchesPriority;
-  });
-
-  const { ListTodos, isFetching, isLoading } = useGetListTodos();
-  console.log(ListTodos);
+    return (
+      <div
+        className={`space-y-3 transition-opacity ${
+          isFetching ? "opacity-70" : ""
+        }`}
+      >
+        {tasks.map((task) => (
+          <TaskItem
+            key={task.id}
+            task={task}
+            onToggle={handleToggle}
+            onEdit={setEditingTask}
+            onDelete={handleDelete}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="p-6">
@@ -428,172 +109,16 @@ const TodoList: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Search and Filter */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search tasks..."
-                className="pl-10"
-              />
-            </div>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-            >
-              <option value="">All Categories</option>
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <select
-              value={filterPriority}
-              onChange={(e) => setFilterPriority(e.target.value)}
-              className="px-3 py-2 border border-input bg-background rounded-md text-sm"
-            >
-              <option value="">All Priorities</option>
-              <option value="low">Low Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="high">High Priority</option>
-            </select>
-          </div>
-        </CardContent>
-      </Card>
+      <TodoFilters value={filters} onChange={setFilters} />
 
-      <div className="space-y-3">
-        {ListTodos?.data.length === 0 || isFetching || isLoading ? (
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground italic">
-                {tasks.length === 0
-                  ? "No tasks yet. Add a new task to get started!"
-                  : "No tasks match your search criteria."}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={ListTodos?.data.map((task) => task.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-3">
-                {ListTodos?.data.map((task) => (
-                  <SortableTaskItem
-                    key={task.id}
-                    task={task}
-                    onToggle={toggleTask}
-                    onEdit={openEditDialog}
-                    onDelete={deleteTask}
-                    isOverdue={isOverdue}
-                    formatDueDate={formatDueDate}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-      </div>
+      <div className="space-y-3">{renderList()}</div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Task</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Task</label>
-              <Input
-                value={editText}
-                onChange={(e) => setEditText(e.target.value)}
-                placeholder="Task description..."
-                className="mt-1"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-sm font-medium">Due Date</label>
-                <Input
-                  type="date"
-                  value={editDate}
-                  onChange={(e) => setEditDate(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Due Time</label>
-                <Input
-                  type="time"
-                  value={editTime}
-                  onChange={(e) => setEditTime(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="text-sm font-medium">Category</label>
-                <select
-                  value={editCategory}
-                  onChange={(e) => setEditCategory(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                >
-                  <option value="">No Category</option>
-                  {CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Priority</label>
-                <select
-                  value={editPriority}
-                  onChange={(e) =>
-                    setEditPriority(e.target.value as "low" | "medium" | "high")
-                  }
-                  className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                >
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Tags</label>
-              <Input
-                value={editTags}
-                onChange={(e) => setEditTags(e.target.value)}
-                placeholder="Tags (comma separated)"
-                className="mt-1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button onClick={saveEdit}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditTaskDialog
+        task={editingTask}
+        isSaving={updateTodo.isPending}
+        onClose={() => setEditingTask(null)}
+        onSave={handleSave}
+      />
     </div>
   );
 };

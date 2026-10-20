@@ -1,6 +1,7 @@
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/services/httpService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { todoKeys } from "./keys";
 
 export const postCreatTodo = async (data: any) => {
   const response = await api.post("todos", data);
@@ -13,7 +14,7 @@ export function useCreateTodo() {
   const { mutate, isPending } = useMutation({
     mutationFn: postCreatTodo,
     onSuccess: () => {
-      queryClient.refetchQueries({ queryKey: ["list-todo"] });
+      queryClient.invalidateQueries({ queryKey: todoKeys.all });
       toast.success("toast.success.creat");
     },
   });

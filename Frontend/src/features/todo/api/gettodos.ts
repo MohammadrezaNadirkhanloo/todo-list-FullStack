@@ -1,16 +1,20 @@
-import { api } from "@/services/httpService";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-export const getListTodos = async () => {
-  const response = await api.get("/todos");
+import { api } from "@/services/httpService";
+
+import type { ListResponse, Task, TodoListParams } from "../types";
+import { todoKeys } from "./keys";
+
+export const getListTodos = async (params: TodoListParams) => {
+  const response = await api.get<ListResponse<Task>>("/todos", { params });
   return response.data;
 };
 
-export function useGetListTodos() {
+export function useGetListTodos(params: TodoListParams = {}) {
   const query = useQuery({
-    queryKey: ["list-todo"],
-    queryFn: () => getListTodos(),
-    staleTime: 0,
+    queryKey: todoKeys.list(params),
+    queryFn: () => getListTodos(params),
+    placeholderData: keepPreviousData,
   });
 
   return {
