@@ -28,11 +28,7 @@ interface RHFInputProps<T extends FieldValues> extends Omit<
   description?: string;
   loading?: boolean;
   autoComplete?:
-    | "off"
-    | "on"
-    | "current-password"
-    | "new-password"
-    | "new-username";
+    "off" | "on" | "current-password" | "new-password" | "new-username";
 }
 
 function RHFInput<T extends FieldValues>({
@@ -56,7 +52,11 @@ function RHFInput<T extends FieldValues>({
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <Field className="gap-1.5" {...inputProps} data-invalid={fieldState.invalid}>
+        <Field
+          className="gap-1.5"
+          {...inputProps}
+          data-invalid={fieldState.invalid}
+        >
           {label && (
             <FieldLabel htmlFor={field.name}>
               {label} :{required && <span className="text-destructive">*</span>}
@@ -65,21 +65,27 @@ function RHFInput<T extends FieldValues>({
 
           <InputGroup>
             {description && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <InputGroupAddon>
-                    <InputGroupButton variant="secondary" size="icon-xs">
-                      <Info />
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                </PopoverTrigger>
-                <PopoverContent
-                  align="start"
-                  className="rounded-xl text-xs border bg-popover p-3"
-                >
-                  <p>{description}</p>
-                </PopoverContent>
-              </Popover>
+              <InputGroupAddon align="inline-end">
+                <Popover>
+                  <PopoverTrigger
+                    render={
+                      <InputGroupButton
+                        variant="secondary"
+                        size="icon-xs"
+                        aria-label="More info"
+                      />
+                    }
+                  >
+                    <Info />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    align="start"
+                    className="rounded-xl text-xs border bg-popover p-3"
+                  >
+                    <p>{description}</p>
+                  </PopoverContent>
+                </Popover>
+              </InputGroupAddon>
             )}
 
             <InputGroupInput

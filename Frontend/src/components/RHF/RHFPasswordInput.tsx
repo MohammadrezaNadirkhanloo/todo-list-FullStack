@@ -9,7 +9,12 @@ import {
 import { Info, Eye, EyeOff } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Spinner } from "../ui/spinner";
-import { Controller, useFormContext, type FieldValues, type Path } from "react-hook-form";
+import {
+  Controller,
+  useFormContext,
+  type FieldValues,
+  type Path,
+} from "react-hook-form";
 import { type InputHTMLAttributes, useState } from "react";
 
 interface RHFPasswordInputProps<T extends FieldValues> extends Omit<
@@ -61,12 +66,12 @@ function RHFPasswordInput<T extends FieldValues>({
             {/* دکمه توضیحات */}
             {description && (
               <Popover>
-                <PopoverTrigger asChild>
-                  <InputGroupAddon>
-                    <InputGroupButton variant="secondary" size="icon-xs">
-                      <Info />
-                    </InputGroupButton>
-                  </InputGroupAddon>
+                <PopoverTrigger
+                  render={
+                    <InputGroupButton variant="secondary" size="icon-xs" />
+                  }
+                >
+                  <Info />
                 </PopoverTrigger>
                 <PopoverContent
                   align="start"
