@@ -3,7 +3,6 @@ import { api } from "@/services/httpService";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 
-
 interface LoginResponse {
   token: string;
 }
@@ -17,12 +16,11 @@ export function useCreateUsers() {
   const toast = useToast();
   const navigate = useNavigate();
 
-
   const { mutate, isPending } = useMutation({
     mutationFn: postCreatUsers,
     onSuccess: async () => {
       navigate("/sign-in");
-      toast.success("toast.success.login");
+      toast.success("Creat Success");
     },
   });
 

@@ -15,7 +15,7 @@ export function useCreateTodo() {
     mutationFn: postCreatTodo,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todoKeys.all });
-      toast.success("toast.success.creat");
+      toast.success("Creat Success");
     },
   });
 

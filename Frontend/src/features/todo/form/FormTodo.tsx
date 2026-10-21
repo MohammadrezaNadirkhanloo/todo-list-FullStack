@@ -7,7 +7,6 @@ import { PlusCircle } from "lucide-react";
 import { useCreateTodo } from "../api/postCreatAccessRoleApi";
 import type { TodoFormData } from "./todo.schema";
 import { useTodoForm } from "./useTodoForm";
-import { Separator } from "@/components/ui/separator";
 
 export function TodoForm() {
   const CATEGORIES = [

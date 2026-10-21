@@ -21,7 +21,7 @@ export function useCreateUsers() {
   const { mutate, isPending } = useMutation({
     mutationFn: postLoginUsers,
     onSuccess: async () => {
-      toast.success("toast.success.login");
+      toast.success("Login success");
       navigate("/todo-list");
     },
   });

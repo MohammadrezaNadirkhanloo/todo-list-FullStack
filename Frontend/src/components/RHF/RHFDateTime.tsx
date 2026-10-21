@@ -137,30 +137,32 @@ function RHFDateTime<T extends FieldValues>({
                 if (!open) field.onBlur();
               }}
             >
-              <PopoverTrigger asChild>
-                <Button
-                  id={field.name}
-                  ref={field.ref}
-                  type="button"
-                  variant="outline"
-                  disabled={disabled || loading}
-                  aria-invalid={fieldState.invalid}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground",
-                  )}
-                >
-                  {loading ? (
-                    <Spinner className="mr-2 h-4 w-4" />
-                  ) : (
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                  )}
-                  {date ? (
-                    format(date, "MM/dd/yyyy hh:mm aa")
-                  ) : (
-                    <span>{placeholder}</span>
-                  )}
-                </Button>
+              <PopoverTrigger
+                render={
+                  <Button
+                    id={field.name}
+                    ref={field.ref}
+                    type="button"
+                    variant="outline"
+                    disabled={disabled || loading}
+                    aria-invalid={fieldState.invalid}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground",
+                    )}
+                  />
+                }
+              >
+                {loading ? (
+                  <Spinner className="mr-2 h-4 w-4" />
+                ) : (
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                )}
+                {date ? (
+                  format(date, "MM/dd/yyyy hh:mm aa")
+                ) : (
+                  <span>{placeholder}</span>
+                )}
               </PopoverTrigger>
 
               <PopoverContent className="w-auto p-0">

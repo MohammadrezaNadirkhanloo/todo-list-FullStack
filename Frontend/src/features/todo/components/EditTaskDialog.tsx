@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "../constants";
 import type { Priority, Task, UpdateTaskInput } from "../types";
 import { buildDueDate, parseTags, splitDueDate } from "../utils/task";
+import { TodoForm } from "../form/FormTodo";
 
 type FormState = {
   title: string;
@@ -92,27 +93,6 @@ export const EditTaskDialog = ({ task, isSaving, onClose, onSave }: Props) => {
               placeholder="Task description..."
               className="mt-1"
             />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-sm font-medium">Due Date</label>
-              <Input
-                type="date"
-                value={form.date}
-                onChange={(e) => set("date", e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Due Time</label>
-              <Input
-                type="time"
-                value={form.time}
-                disabled={!form.date}
-                onChange={(e) => set("time", e.target.value)}
-                className="mt-1"
-              />
-            </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
