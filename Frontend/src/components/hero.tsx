@@ -9,7 +9,7 @@ import { RainbowButton } from "./ui/rainbow-button";
 import { useNavigate } from "react-router";
 
 export function HeroSection() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <section>
       <div className="relative flex flex-col items-center justify-center gap-5 px-4 py-12 md:px-4 md:py-24 lg:py-28">
@@ -78,16 +78,16 @@ export function HeroSection() {
             alt="light app screen"
             className="dark:hidden"
             height="auto"
-            src="/pro.webp"
+            src="/pro-light.webp"
             width="auto"
           />
-          {/* <img
+          <img
             alt="dark app screen"
             className="hidden dark:block"
             height="auto"
-            src="https://storage.efferd.com/screen/dashboard-dark.webp"
+            src="/pro-dark.webp"
             width="auto"
-          /> */}
+          />
         </div>
         <FullWidthDivider className="-bottom-px" />
       </div>

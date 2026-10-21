@@ -17,7 +17,7 @@ import {
 } from "react-hook-form";
 
 interface SelectOption {
-  value: string;
+  value: string | null;
   label: string;
   disabled?: boolean;
   status?: string;
@@ -95,7 +95,7 @@ function RHFSelect<T extends FieldValues>({
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
 
-            <SelectContent position="popper">
+            <SelectContent alignItemWithTrigger={false}>
               {resolvedGroups.map((group, gi) => (
                 <SelectGroup key={gi}>
                   {group.groupLabel && (

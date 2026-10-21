@@ -35,7 +35,7 @@ func NewRouter(deps RouterDeps) (*gin.Engine, error) {
 	if err := r.SetTrustedProxies(deps.Config.Server.TrustedProxies); err != nil {
 		return nil, err
 	}
-
+	r.HandleMethodNotAllowed = true
 	r.Use(
 		middleware.RequestID(),
 		gin.Recovery(),
@@ -107,7 +107,6 @@ func registerAPIRoutes(r *gin.Engine, deps RouterDeps) {
 
 	authClosed := g.Protected.Group("/auth")
 	{
-		authClosed.GET("/me", h.Auth.Me)
 		authClosed.POST("/logout-all", h.Auth.LogoutAll)
 	}
 

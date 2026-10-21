@@ -1,4 +1,3 @@
-// components/RHF/FormContext.tsx
 import { FormProvider as RHFFormProvider } from "react-hook-form";
 import { type ReactNode } from "react";
 import { type FieldValues, type UseFormReturn, type Control } from "react-hook-form";
@@ -22,7 +21,6 @@ export function FormProvider<
   control,
   children,
 }: FormProviderProps<T, TContext, TTransformedValues>) {
-  // اگه form داد از اون استفاده کن، وگرنه یه mock object بساز
   const formValue = form || ({
     control: control!,
   } as UseFormReturn<T, TContext, TTransformedValues>);
